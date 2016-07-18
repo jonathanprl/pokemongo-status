@@ -1,0 +1,47 @@
+{
+  "name": "textures",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "eslint": "^2.3.0",
+    "eslint-config-airbnb": "^6.1.0",
+    "eslint-config-standard": "^5.1.0",
+    "eslint-plugin-promise": "^1.1.0",
+    "eslint-plugin-standard": "^1.3.2",
+    "gulp": "^3.9.0",
+    "gulp-clean": "^0.3.2",
+    "gulp-concat": "^2.6.0",
+    "gulp-inject": "^3.0.0",
+    "gulp-jade": "^1.1.0",
+    "gulp-less": "^3.0.5",
+    "gulp-minify": "0.0.5",
+    "gulp-minify-css": "^1.2.3",
+    "gulp-nodemon": "^2.0.6",
+    "gulp-watch": "^4.3.5",
+    "main-bower-files": "^2.11.1",
+    "stream-series": "^0.1.1"
+  },
+  "dependencies": {
+    "body-parser": "^1.14.2",
+    "cheerio": "^0.20.0",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.13.3",
+    "gcloud": "^0.37.0",
+    "jade": "^1.11.0",
+    "joi": "^8.0.5",
+    "lodash": "^4.0.0",
+    "moment": "^2.14.1",
+    "mongodb": "^2.1.4",
+    "mongojs": "^2.2.2",
+    "node-fetch": "^1.5.3",
+    "promise-time": "^0.2.0",
+    "restler": "^3.4.0"
+  }
+}

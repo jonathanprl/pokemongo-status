@@ -1,0 +1,31 @@
+doctype html
+html
+  head
+    base(href="/")
+    title Sandbox  
+      
+    meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    meta(charset="utf-8")
+    meta(name="description" content="Description.")
+    meta(name="keywords" content="keywords")
+    
+    link(href="https://fonts.googleapis.com/css?family=Open+Sans:400,300,600" rel="stylesheet" type="text/css")
+    //- inject:css
+    //- endinject
+    
+  body
+    .wrapper
+      header
+        block header
+      block content
+    footer
+      block footer
+      
+    //- vendorDeps:js
+    //- endinject
+    //- vendor:js
+    //- endinject
+    //- app:js
+    //- endinject
+
+    block scripts

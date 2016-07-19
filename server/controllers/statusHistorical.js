@@ -18,7 +18,7 @@ module.exports = {
  */
 function createStatus(status, callback)
 {
-  db.insert('status', status,
+  db.insert('statusHistorical', status,
     function(err, doc)
     {
       if (err)
@@ -38,7 +38,7 @@ function createStatus(status, callback)
 function deleteStatus(req, res)
 {
   // TODO: Sanitize
-  db.remove('status', {_id: req.params.id},
+  db.remove('statusHistorical', {_id: req.params.id},
     function(err, doc)
     {
       if (err)
@@ -58,7 +58,7 @@ function deleteStatus(req, res)
 function getStatus(req, res, next)
 {
   // TODO: Sanitize
-  db.find('status',
+  db.find('statusHistorical',
     function(err, doc)
     {
       if (err)
@@ -85,7 +85,7 @@ function getStatus(req, res, next)
 function updateStatus(req, res)
 {
   // TODO: Sanitize
-  db.modify('status', {_id: req.params.id}, req.body,
+  db.modify('statusHistorical', {_id: req.params.id}, req.body,
     function(err, doc)
     {
       if (err)
@@ -104,7 +104,7 @@ function updateStatus(req, res)
  */
 function upsertStatus(status, callback)
 {
-  db.upsert('status', { region: status.region }, status,
+  db.upsert('statusHistorical', { code: status.code }, status,
     function(err, doc)
     {
       if (err)
@@ -118,51 +118,64 @@ function upsertStatus(status, callback)
 
 function getLatestStatus(req, res, next)
 {
-  var types = ['global', 'region', 'server'];
+  var regions = ['global', 'us-east1', 'us-west1', 'us-central1', 'europe-west1', 'asia-east1'];
   // TODO: Sanitize
 
-  var promises = [];
-  types.forEach(type => {
-    promises.push(new Promise((resolve, reject) => {
-      db.findWhere('status', { type: type }, {}, null, {region: 1}, (err, docs) => {
+  db.findWhere('statusHistorical', { region: 'global' }, {}, 1, { createdAt: -1 }, (err, docs) => {
+    if (err) console.log(err);
 
-        if (err) {
-          console.log(err);
-          return reject();
-        }
+    var promises = [];
+    regions.forEach(region => {
+      promises.push(new Promise((resolve, reject) => {
+        db.findWhere('statusHistorical', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
 
-        resolve({
-          type: type,
-          statuses: docs
+          if (err || docs.length == 0) {
+            console.log(err);
+            return reject();
+          }
+
+          var dbRegion = docs[0];
+
+          if (!docs[0].status)
+          {
+            dbRegion.status = false;
+            dbRegion.text = 'Offline';
+            dbRegion.statusCode = 'offline';
+          }
+
+          resolve(dbRegion);
         });
+      }));
+    });
+
+    Promise.all(promises).then(statuses => {
+      var globalStatuses = statuses.filter(status => {
+        return status.type == 'global';
       });
-    }));
-  });
 
-  Promise.all(promises).then(types => {
-    var serverStatuses = types.filter((type) => { return type.type == 'server'; })[0].statuses;
-    var onlineCount = serverStatuses.filter((status) => { return status.statusCode != 'offline'; }).length;
+      var regionStatuses = statuses.filter(status => {
+        return status.type != 'region';
+      });
 
-    var status = {
-      stats: {
-        totalCount: serverStatuses.length,
-        onlineCount: onlineCount,
-        offlineCount: serverStatuses.length - onlineCount,
-        normalLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'low-load'; }).length,
-        mediumLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'medium-load'; }).length,
-        highLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'high-load'; }).length,
-        maxLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'max-load'; }).length
-      },
-      regionStatuses: types.filter((type) => { return type.type == 'region'; })[0].statuses,
-      globalStatuses: types.filter((type) => { return type.type == 'global'; })[0].statuses
-    };
+      var serverStatuses = statuses.filter(status => {
+        return status.type != 'server';
+      });
 
-    if (res.locals.api)
-    {
-      return swiftping.apiResponse('ok', res, status);
-    }
+      var status = {
+        serverStatuses: serverStatuses,
+        regionStatuses: regionStatuses,
+        globalStatuses: globalStatuses,
+        lastUpdated: moment(statuses[0].createdAt).format('HH:mm'),
+        lastUpdatedHuman: moment(statuses[0].createdAt).fromNow()
+      };
 
-    res.locals.status = status;
-    next();
+      if (res.locals.api)
+      {
+        return swiftping.apiResponse('ok', res, status);
+      }
+
+      res.locals.status = status;
+      next();
+    });
   });
 }

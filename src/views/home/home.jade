@@ -7,19 +7,48 @@ block content
       .col-md-4.col-md-offset-4
         ul.services.list-group
             h4.list-group-item Login Servers
-            each status, index in locals.status.loginStatuses
+            each status, index in locals.status.globalStatuses
               li.list-group-item.sub
                 | #{status.friendly}
                 span.pull-right(class=status.statusCode)
                   | #{status.text}
-            h4.list-group-item Game Servers
-            each status, index in locals.status.statuses
+            h4.list-group-item Game Servers (Regions)
+            each status, index in locals.status.regionStatuses
               li.list-group-item.sub
                 | #{status.friendly}
                 span.pull-right(class=status.statusCode)
                   | #{status.text}
-        div.updated
-          | Last updated at #{locals.status.lastUpdated} GMT (#{locals.status.lastUpdatedHuman})
+            h4.list-group-item Statistics (All)
+            li.list-group-item.sub
+              | Total Servers
+              span.pull-right
+                | #{locals.status.stats.totalCount}
+            li.list-group-item.sub
+              | Servers Online
+              span.pull-right
+                | #{locals.status.stats.onlineCount}
+            li.list-group-item.sub
+              | Servers Offline
+              span.pull-right
+                | #{locals.status.stats.offlineCount}
+            li.list-group-item.sub
+              | Max Load Count
+              span.pull-right
+                | #{locals.status.stats.maxLoadCount}
+            li.list-group-item.sub
+              | High Load Count
+              span.pull-right
+                | #{locals.status.stats.highLoadCount}
+            li.list-group-item.sub
+              | Medium Load
+              span.pull-right
+                | #{locals.status.stats.mediumLoadCount}
+            li.list-group-item.sub
+              | Normal Load Count
+              span.pull-right
+                | #{locals.status.stats.normalLoadCount}
+        //- div.updated
+        //-   | Last updated at #{locals.status.lastUpdated} GMT (#{locals.status.lastUpdatedHuman})
 
   footer
     | This website is a work in-progress. <br>

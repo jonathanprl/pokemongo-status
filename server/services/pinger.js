@@ -7,6 +7,7 @@ const time = require('promise-time');
 const schedule = require('node-schedule');
 
 const status = require('../controllers/status.js');
+const statusHistorical = require('../controllers/statusHistorical.js');
 const swiftping = require('../helpers/swiftping.js');
 const db = require('../db');
 const config = require('../../config.js');
@@ -52,7 +53,7 @@ function pingGoLoginServer()
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.global);
     promise.then(() => {
-      status.createStatus({
+      var serverStatus = {
         region: 'global',
         status: goStatus(promise.time) == 'Offline' ? false : true,
         time: promise.time,
@@ -60,8 +61,12 @@ function pingGoLoginServer()
         text: goStatus(promise.time),
         createdAt: new Date(),
         sort: 1,
-        statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-')
-      }, (err, doc) => {
+        statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-'),
+        type: 'global'
+      };
+
+      status.upsertStatus(serverStatus, (err, doc) => {
+        statusHistorical.createStatus(serverStatus, (err, doc) => {});
       });
     });
   });
@@ -72,8 +77,7 @@ function pingGoServer(server)
   const promise = time(fetch)(`https://pgorelease.nianticlabs.com/plfe/${server}/rpc`);
 
   promise.then(() => {
-    console.log('Server ' + server + ' ping = ' + promise.time);
-    status.createStatus({
+    var serverStatus = {
       region: server,
       status: goStatus(promise.time) == 'Offline' ? false : true,
       time: promise.time,
@@ -81,9 +85,13 @@ function pingGoServer(server)
       text: goStatus(promise.time),
       createdAt: new Date(),
       sort: 1,
-      statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-')
-    }, (err, doc) => {
+      statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-'),
+      type: 'server'
+    };
+    status.upsertStatus(serverStatus, (err, doc) => {
+      statusHistorical.createStatus(serverStatus, (err, doc) => {
 
+      });
     });
   });
 }
@@ -92,7 +100,7 @@ function pingGoogleServers()
 {
   gce.getRegions(function(err, regions) {
     regions.forEach(function(region) {
-      status.createStatus({
+      var serverStatus = {
         region: region.id,
         status: region.metadata.status == 'UP' ? true : false,
         time: 1,
@@ -100,8 +108,12 @@ function pingGoogleServers()
         text: region.metadata.status == 'UP' ? 'Online' : 'Offline',
         createdAt: new Date(),
         sort: 2,
-        statusCode: region.metadata.status == 'UP' ? 'online' : 'offline'
-      }, function(err, doc) {
+        statusCode: region.metadata.status == 'UP' ? 'online' : 'offline',
+        type: 'region'
+      };
+      status.upsertStatus(serverStatus, function(err, doc) {
+        statusHistorical.createStatus(serverStatus, function(err, doc) {
+        });
       });
     });
   });
@@ -110,10 +122,10 @@ function pingGoogleServers()
 function goStatus(time)
 {
   if (time === -1) return 'Offline';
-  if (time < 500) return 'Low Load';
-  if (time >= 500 && time < 2000) return 'Medium Load';
-  if (time >= 2000 && time < 8000) return 'High Load';
-  if (time >= 8000 && time < 15000) return 'Very High Load';
+  if (time < 500) return 'Normal Load';
+  if (time >= 500 && time < 3000) return 'Medium Load';
+  if (time >= 3000 && time < 10000) return 'High Load';
+  if (time >= 10000 && time < 15000) return 'Max Load';
   if (time >= 15000) return 'Offline';
 }
 

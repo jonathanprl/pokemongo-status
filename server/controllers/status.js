@@ -148,7 +148,7 @@ function getLatestStatus(req, res, next)
         totalCount: serverStatuses.length,
         onlineCount: onlineCount,
         offlineCount: serverStatuses.length - onlineCount,
-        normalLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'low-load'; }).length,
+        normalLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'normal-load'; }).length,
         mediumLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'medium-load'; }).length,
         highLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'high-load'; }).length,
         maxLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'max-load'; }).length

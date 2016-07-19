@@ -32,21 +32,21 @@ block content
               span.pull-right
                 | #{locals.status.stats.offlineCount}
             li.list-group-item.sub
-              | Max Load Count
+              span.normal-load Normal Load
               span.pull-right
-                | #{locals.status.stats.maxLoadCount}
+                | #{locals.status.stats.normalLoadCount}
             li.list-group-item.sub
-              | High Load Count
-              span.pull-right
-                | #{locals.status.stats.highLoadCount}
-            li.list-group-item.sub
-              | Medium Load
+              span.medium-load Medium Load
               span.pull-right
                 | #{locals.status.stats.mediumLoadCount}
             li.list-group-item.sub
-              | Normal Load Count
+              span.high-load High Load
               span.pull-right
-                | #{locals.status.stats.normalLoadCount}
+                | #{locals.status.stats.highLoadCount}
+            li.list-group-item.sub
+              span.max-load Max Load
+              span.pull-right
+                | #{locals.status.stats.maxLoadCount}
         //- div.updated
         //-   | Last updated at #{locals.status.lastUpdated} GMT (#{locals.status.lastUpdatedHuman})
 

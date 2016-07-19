@@ -124,12 +124,13 @@ function getLatestStatus(req, res, next)
   db.findWhere('status', { region: 'global' }, {}, 1, { createdAt: -1 }, (err, docs) => {
     console.log(err);
     console.log(docs);
+
+    var promises = [];
+    
     if (!docs[0].status)
     {
       return promises.push(true);
     }
-
-    var promises = [];
 
     regions.forEach(region => {
       promises.push(new Promise((resolve, reject) => {

@@ -12,4 +12,4 @@ block content
               span.pull-right(class=status.statusCode)
                 | #{status.text}
         div.updated
-          | Last updated: #{locals.status.lastUpdated}
+          | Last updated at #{locals.status.lastUpdated} GMT (#{locals.status.lastUpdatedHuman})

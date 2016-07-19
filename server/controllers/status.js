@@ -118,37 +118,39 @@ function upsertStatus(status, callback)
 
 function getLatestStatus(req, res, next)
 {
+  var promises = [];
+  var regions = ['us-east1', 'us-west1', 'us-central1', 'europe-west1', 'asia-east1'];
   // TODO: Sanitize
-  db.findWhere('status', {}, {}, 5, { createdAt: -1 },
-    function(err, doc)
+
+  db.findWhere('status', { region: 'global' }, {}, 1, { createdAt: -1 }, (err, docs) => {
+    if (!docs[0].status)
     {
-      var statuses = doc.filter(function(status) {
-        return status.region != 'global';
-      });
-
-      var global = doc.filter(function(status) {
-        return status.region == 'global';
-      })[0];
-
-      statuses.unshift(global);
-
-      var status = {
-        statuses: statuses,
-        lastUpdated: moment(doc[0].createdAt).fromNow()
-      };
-
-      if (err)
-      {
-        return swiftping.apiResponse('error', res, {code: 'server_error', message: 'Could not fetch all status.'});
-      }
-
-      if (res.locals.api)
-      {
-        return swiftping.apiResponse('ok', res, status);
-      }
-
-      res.locals.status = status;
-      next();
+      return promises.push(true);
     }
-  );
+    regions.forEach(region => {
+      promises.push(new Promise((resolve, reject) => {
+        db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
+          console.log(err, docs);
+          if (err || docs.length == 0) return reject();
+          resolve(docs[0]);
+        });
+      }));
+    });
+  });
+
+  Promise.all(promises).then(statuses => {
+    var status = {
+      statuses: statuses,
+      lastUpdated: moment(statuses[0].createdAt).format('HH:mm'),
+      lastUpdatedHuman: moment(statuses[0].createdAt).fromNow()
+    };
+
+    if (res.locals.api)
+    {
+      return swiftping.apiResponse('ok', res, status);
+    }
+
+    res.locals.status = status;
+    next();
+  });
 }

@@ -23,7 +23,7 @@ module.exports = {
 
 function startCron()
 {
-  var j = schedule.scheduleJob('*/30 * * * * *', () => {
+  var j = schedule.scheduleJob('* * * * *', () => {
     pingGoServers();
     pingGoogleServers();
     console.log('Server status updated.');
@@ -37,7 +37,7 @@ function pingGoServers()
     promise.then(() => {
       status.createStatus({
         region: 'global',
-        status: true,
+        status: goStatus(promise.time) == 'Offline' ? false : true,
         time: promise.time,
         sub: false,
         friendly: 'Global',

@@ -122,27 +122,31 @@ function getLatestStatus(req, res, next)
   // TODO: Sanitize
 
   db.findWhere('status', { region: 'global' }, {}, 1, { createdAt: -1 }, (err, docs) => {
-    console.log(err);
-    console.log(docs);
+    if (err) console.log(err);
 
     var promises = [];
+    regions.forEach(region => {
+      promises.push(new Promise((resolve, reject) => {
+        db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
 
-    if (!docs[0].status)
-    {
-      promises.push(true);
-    }
-    else
-    {
-      regions.forEach(region => {
-        promises.push(new Promise((resolve, reject) => {
-          db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
+          if (err || docs.length == 0) {
             console.log(err);
-            if (err || docs.length == 0) return reject();
-            resolve(docs[0]);
-          });
-        }));
-      });
-    }
+            return reject();
+          }
+
+          var dbRegion = docs[0];
+
+          if (!docs[0].status)
+          {
+            dbRegion.status = false;
+            dbRegion.text = 'Offline';
+            dbRegion.statusCode = 'offline';
+          }
+
+          resolve(dbRegion);
+        });
+      }));
+    });
 
     Promise.all(promises).then(statuses => {
       var status = {

@@ -9,6 +9,7 @@ const schedule = require('node-schedule');
 const status = require('../controllers/status.js');
 const swiftping = require('../helpers/swiftping.js');
 const db = require('../db');
+const config = require('../../config.js');
 
 var gce = gcloud.compute({
   projectId: 'gamerstats-1349',
@@ -16,7 +17,7 @@ var gce = gcloud.compute({
 });
 
 module.exports = {
-  pingGoServers,
+  pingGoLoginServer,
   pingGoogleServers,
   startCron
 };
@@ -24,13 +25,29 @@ module.exports = {
 function startCron()
 {
   var j = schedule.scheduleJob('* * * * *', () => {
-    pingGoServers();
+    pingGoLoginServer();
     pingGoogleServers();
-    console.log('Server status updated.');
   });
+
+  if (!config.pingAllServers) {
+    console.log('Ping all servers is disabled');
+    return false;
+  }
+
+  var servers = 520;
+
+  for (var i=1;i<=servers;i++)
+  {
+    var second = i % 60;
+    (function(server) {
+      schedule.scheduleJob(`${second} * * * * *`, () => {
+        pingGoServer(server);
+      });
+    }(i));
+  }
 }
 
-function pingGoServers()
+function pingGoLoginServer()
 {
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.global);
@@ -46,6 +63,27 @@ function pingGoServers()
         statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-')
       }, (err, doc) => {
       });
+    });
+  });
+}
+
+function pingGoServer(server)
+{
+  const promise = time(fetch)(`https://pgorelease.nianticlabs.com/plfe/${server}/rpc`);
+
+  promise.then(() => {
+    console.log('Server ' + server + ' ping = ' + promise.time);
+    status.createStatus({
+      region: server,
+      status: goStatus(promise.time) == 'Offline' ? false : true,
+      time: promise.time,
+      friendly: 'Server ' + server,
+      text: goStatus(promise.time),
+      createdAt: new Date(),
+      sort: 1,
+      statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-')
+    }, (err, doc) => {
+
     });
   });
 }
@@ -75,7 +113,8 @@ function goStatus(time)
   if (time < 500) return 'Low Load';
   if (time >= 500 && time < 2000) return 'Medium Load';
   if (time >= 2000 && time < 8000) return 'High Load';
-  if (time >= 8000) return 'Offline';
+  if (time >= 8000 && time < 15000) return 'Very High Load';
+  if (time >= 15000) return 'Offline';
 }
 
 function friendlyRegionName(name)

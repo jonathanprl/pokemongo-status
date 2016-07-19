@@ -58,10 +58,10 @@ function pingGoLoginServer()
         status: res.status == 200,
         time: promise.time,
         friendly: 'Global',
-        text: goStatus(promise.time),
+        text: goStatus(promise.time, res.status),
         createdAt: new Date(),
         sort: 1,
-        statusCode: goStatus(promise.time).toLowerCase().split(' ').join('-'),
+        statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
         type: 'global'
       };
 
@@ -77,7 +77,6 @@ function pingGoServer(server)
   const promise = time(fetch)(`https://pgorelease.nianticlabs.com/plfe/${server}/rpc`, { method: 'POST' });
 
   promise.then((res) => {
-    console.log(res.status, promise.time);
     var serverStatus = {
       region: server,
       status: goStatus(promise.time, res.status) == 'Offline' ? false : true,

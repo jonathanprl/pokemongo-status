@@ -126,21 +126,23 @@ function getLatestStatus(req, res, next)
     console.log(docs);
 
     var promises = [];
-    
+
     if (!docs[0].status)
     {
-      return promises.push(true);
+      promises.push(true);
     }
-
-    regions.forEach(region => {
-      promises.push(new Promise((resolve, reject) => {
-        db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
-          console.log(err);
-          if (err || docs.length == 0) return reject();
-          resolve(docs[0]);
-        });
-      }));
-    });
+    else
+    {
+      regions.forEach(region => {
+        promises.push(new Promise((resolve, reject) => {
+          db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
+            console.log(err);
+            if (err || docs.length == 0) return reject();
+            resolve(docs[0]);
+          });
+        }));
+      });
+    }
 
     Promise.all(promises).then(statuses => {
       var status = {

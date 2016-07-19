@@ -119,10 +119,12 @@ function upsertStatus(status, callback)
 function getLatestStatus(req, res, next)
 {
   var promises = [];
-  var regions = ['us-east1', 'us-west1', 'us-central1', 'europe-west1', 'asia-east1'];
+  var regions = ['global', 'us-east1', 'us-west1', 'us-central1', 'europe-west1', 'asia-east1'];
   // TODO: Sanitize
 
   db.findWhere('status', { region: 'global' }, {}, 1, { createdAt: -1 }, (err, docs) => {
+    console.log(err);
+    console.log(docs);
     if (!docs[0].status)
     {
       return promises.push(true);
@@ -130,7 +132,7 @@ function getLatestStatus(req, res, next)
     regions.forEach(region => {
       promises.push(new Promise((resolve, reject) => {
         db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
-          console.log(err, docs);
+          console.log(err);
           if (err || docs.length == 0) return reject();
           resolve(docs[0]);
         });

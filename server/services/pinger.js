@@ -76,8 +76,8 @@ function goStatus(time)
   if (time === -1) return 'Offline';
   if (time < 500) return 'Low Load';
   if (time >= 500 && time < 2000) return 'Medium Load';
-  if (time >= 2000 && time < 5000) return 'High Load';
-  if (time >= 5000) return 'Offline';
+  if (time >= 2000 && time < 8000) return 'High Load';
+  if (time >= 8000) return 'Offline';
 }
 
 function friendlyRegionName(name)

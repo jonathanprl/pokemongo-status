@@ -118,7 +118,6 @@ function upsertStatus(status, callback)
 
 function getLatestStatus(req, res, next)
 {
-  var promises = [];
   var regions = ['global', 'us-east1', 'us-west1', 'us-central1', 'europe-west1', 'asia-east1'];
   // TODO: Sanitize
 
@@ -129,6 +128,9 @@ function getLatestStatus(req, res, next)
     {
       return promises.push(true);
     }
+
+    var promises = [];
+
     regions.forEach(region => {
       promises.push(new Promise((resolve, reject) => {
         db.findWhere('status', { region: region }, {}, 1, { createdAt: -1 }, (err, docs) => {
@@ -138,21 +140,21 @@ function getLatestStatus(req, res, next)
         });
       }));
     });
-  });
 
-  Promise.all(promises).then(statuses => {
-    var status = {
-      statuses: statuses,
-      lastUpdated: moment(statuses[0].createdAt).format('HH:mm'),
-      lastUpdatedHuman: moment(statuses[0].createdAt).fromNow()
-    };
+    Promise.all(promises).then(statuses => {
+      var status = {
+        statuses: statuses,
+        lastUpdated: moment(statuses[0].createdAt).format('HH:mm'),
+        lastUpdatedHuman: moment(statuses[0].createdAt).fromNow()
+      };
 
-    if (res.locals.api)
-    {
-      return swiftping.apiResponse('ok', res, status);
-    }
+      if (res.locals.api)
+      {
+        return swiftping.apiResponse('ok', res, status);
+      }
 
-    res.locals.status = status;
-    next();
+      res.locals.status = status;
+      next();
+    });
   });
 }

@@ -102,7 +102,7 @@ gulp.task('watch', function () {
   ], ['build']);
 });
 
-gulp.task('daemon', function () {
+gulp.task('daemon', ['build'], function () {
   nodemon({
     script: 'server.js',
     ext: 'js',
@@ -119,4 +119,4 @@ gulp.task('daemon', function () {
 gulp.task('default', ['build']);
 gulp.task('build', ['views']);
 gulp.task('production', ['inject-production']);
-gulp.task('serve', ['daemon', 'build', 'watch']);
+gulp.task('serve', ['daemon', 'watch']);

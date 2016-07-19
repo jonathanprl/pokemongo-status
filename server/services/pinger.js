@@ -4,6 +4,7 @@ const path = require('path');
 const gcloud = require('gcloud');
 const fetch = require('node-fetch');
 const time = require('promise-time');
+const schedule = require('node-schedule');
 
 const status = require('../controllers/status.js');
 const swiftping = require('../helpers/swiftping.js');
@@ -16,8 +17,18 @@ var gce = gcloud.compute({
 
 module.exports = {
   pingGoServers,
-  pingGoogleServers
+  pingGoogleServers,
+  startCron
 };
+
+function startCron()
+{
+  var j = schedule.scheduleJob('*/30 * * * * *', () => {
+    pingGoServers();
+    pingGoogleServers();
+    console.log('Server status updated.');
+  });
+}
 
 function pingGoServers()
 {
@@ -63,8 +74,8 @@ function pingGoogleServers()
 function goStatus(time)
 {
   if (time === -1) return 'Offline';
-  if (time < 500) return 'Online';
-  if (time >= 500 && time < 2000) return 'Medium load';
+  if (time < 500) return 'Low Load';
+  if (time >= 500 && time < 2000) return 'Medium Load';
   if (time >= 2000 && time < 5000) return 'High Load';
   if (time >= 5000) return 'Offline';
 }

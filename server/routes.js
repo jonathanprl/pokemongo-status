@@ -2,8 +2,7 @@ var status = require('./controllers/status');
 var swiftping = require('./helpers/swiftping');
 var pinger = require('./services/pinger.js');
 
-pinger.pingGoServers();
-pinger.pingGoogleServers();
+pinger.startCron();
 
 module.exports = function(app)
 {

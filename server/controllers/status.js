@@ -149,8 +149,17 @@ function getLatestStatus(req, res, next)
     });
 
     Promise.all(promises).then(statuses => {
+      var loginStatuses = statuses.filter(status => {
+        return status.region == 'global';
+      });
+
+      var statuses = statuses.filter(status => {
+        return status.region != 'global';
+      });
+
       var status = {
         statuses: statuses,
+        loginStatuses: loginStatuses,
         lastUpdated: moment(statuses[0].createdAt).format('HH:mm'),
         lastUpdatedHuman: moment(statuses[0].createdAt).fromNow()
       };

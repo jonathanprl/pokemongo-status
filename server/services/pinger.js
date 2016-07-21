@@ -31,7 +31,7 @@ function startCron()
   });
 
   // Socket.io emitter
-  schedule.scheduleJob('*/10 * * * * *', () => {
+  schedule.scheduleJob('*/5 * * * * *', () => {
     status.statusEmitter();
   });
 

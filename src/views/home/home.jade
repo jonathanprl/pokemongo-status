@@ -3,13 +3,17 @@ extends ../index/index.jade
 block content
   .container
     .row
-      .col-lg-4.col-lg-offset-4.col-md-6.col-md-offset-3.col-sm-8.col-sm-offset-2
-        h1 Pokemon Go Server Status
+      .col-md-12
+        .logo
+          | PokeGo Status
+        h1 Pokemon Go Server Status (Live)
         h4.live-text.pull-right(title="Updated every 5 seconds.")
           span
           | LIVE
         | <a href="https://twitter.com/PokeGo_Status" class="twitter-follow-button" data-show-count="false">Follow @PokeGo_Status</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
         | <div class="fb-like" style="vertical-align: top;" data-href="https://www.facebook.com/pokegostatus" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
+    .row
+      .col-md-6
         ul.services.list-group
             h4.list-group-item Login Servers
             each status, index in locals.status.globalStatuses
@@ -23,47 +27,48 @@ block content
                 span.title #{status.friendly}
                 span.value.pull-right(class=status.statusCode)
                   | #{status.text}
-            h4.list-group-item Statistics (All)
-            li.list-group-item.sub#totalCount
-              span.title Total Servers
-              span.pull-right
-                span.value #{locals.status.stats.totalCount}
-            li.list-group-item.sub#onlineCount
-              span.title Servers Online
-              span.pull-right
-                span.value #{locals.status.stats.onlineCount}
-            li.list-group-item.sub#offlineCount
-              span.title Servers Offline
-              span.pull-right
-                span.value #{locals.status.stats.offlineCount}
-            li.list-group-item.sub#normalLoadCount
-              span.title.normal-load Normal Load
-              span.pull-right
-                span.value #{locals.status.stats.normalLoadCount}
-            li.list-group-item.sub#mediumLoadCount
-              span.title.medium-load Medium Load
-              span.pull-right
-                span.value #{locals.status.stats.mediumLoadCount}
-            li.list-group-item.sub#highLoadCount
-              span.title.high-load High Load
-              span.pull-right
-                span.value #{locals.status.stats.highLoadCount}
-            li.list-group-item.sub#maxLoadCount
-              span.title.max-load Max Load
-              span.pull-right
-                span.value #{locals.status.stats.maxLoadCount}
-        div.info
-          h3 FAQ
-          h5.q Where do you get your data from?
-          p The above data is pulled directly from Google and the Pokemon Go servers.
-          h5.q How up-to-date is your data?
-          p The above statuses are never older than 1 minute. We pull the latest statuses from our database in real-time every 5 seconds. (No need to refresh!)
-          h5.q I can't login to Pokemon Go but your site says it's online?
-          p If there's a high number of servers that are under "Max Load" or "High Load", you may need to try a few times before you can get into the game.
-          h5.q Do you have graphs for the past X days?
-          p Historical graphs are coming very soon! We have millions of data entries to analyse and will be publishing some interesting statistics soon.
+      .col-md-6
+        h4.list-group-item Statistics (All)
+        li.list-group-item.sub#totalCount
+          span.title Total Servers
+          span.pull-right
+            span.value #{locals.status.stats.totalCount}
+        li.list-group-item.sub#onlineCount
+          span.title Servers Online
+          span.pull-right
+            span.value #{locals.status.stats.onlineCount}
+        li.list-group-item.sub#offlineCount
+          span.title Servers Offline
+          span.pull-right
+            span.value #{locals.status.stats.offlineCount}
+        li.list-group-item.sub#normalLoadCount
+          span.title.normal-load Normal Load
+          span.pull-right
+            span.value #{locals.status.stats.normalLoadCount}
+        li.list-group-item.sub#mediumLoadCount
+          span.title.medium-load Medium Load
+          span.pull-right
+            span.value #{locals.status.stats.mediumLoadCount}
+        li.list-group-item.sub#highLoadCount
+          span.title.high-load High Load
+          span.pull-right
+            span.value #{locals.status.stats.highLoadCount}
+        li.list-group-item.sub#maxLoadCount
+          span.title.max-load Max Load
+          span.pull-right
+            span.value #{locals.status.stats.maxLoadCount}
+    div.info
+      h3 FAQ
+      h5.q Where do you get your data from?
+      p The above data is pulled directly from Google and the Pokemon Go servers.
+      h5.q How up-to-date is your data?
+      p The above statuses are never older than 1 minute. We pull the latest statuses from our database in real-time every 5 seconds. (No need to refresh!)
+      h5.q I can't login to Pokemon Go but your site says it's online?
+      p If there's a high number of servers that are under "Max Load" or "High Load", you may need to try a few times before you can get into the game.
+      h5.q Do you have graphs for the past X days?
+      p Historical graphs are coming very soon! We have millions of data entries to analyse and will be publishing some interesting statistics soon.
 
-        footer
-          p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.
-          p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
-          p Built and maintained by Gamerstats.net.
+    footer
+      p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.
+      p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
+      p Built and maintained by Gamerstats.net.

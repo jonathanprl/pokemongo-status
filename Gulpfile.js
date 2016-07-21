@@ -43,6 +43,12 @@ gulp.task('concat-vendor', function() {
   return stream;
 });
 
+gulp.task('images', ['clean:images'], function() {
+  var stream = gulp.src('./src/img/**/*')
+    .pipe(gulp.dest('./dist/assets/img'));
+  return stream;
+});
+
 gulp.task('less', ['clean:styles'], function() {
   var stream = gulp.src('./src/themes/default/app.less')
     .pipe(less())
@@ -57,7 +63,7 @@ gulp.task('scripts', ['clean:scripts'], function() {
   return stream;
 });
 
-gulp.task('views', ['less', 'scripts', 'vendor'], function() {
+gulp.task('views', ['less', 'scripts', 'vendor', 'images'], function() {
   var vendorStream = gulp.src(['./dist/assets/libs/*.js', '!./dist/assets/libs/jquery.js'], {read: false});
   var vendorDeps = gulp.src(['./dist/assets/libs/jquery.js'], {read: false});
   var appStream = gulp.src(['./dist/assets/js/*.js'], {read: false});
@@ -92,6 +98,11 @@ gulp.task('clean:scripts', function() {
 
 gulp.task('clean:vendor', function() {
   return gulp.src('./dist/assets/libs', {read: false})
+    .pipe(clean());
+});
+
+gulp.task('clean:images', function() {
+  return gulp.src('./dist/assets/img', {read: false})
     .pipe(clean());
 });
 

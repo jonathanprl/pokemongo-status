@@ -8,7 +8,7 @@ module.exports = function(app)
 {
   app.get('/', status.getLatestStatus, function(req, res) {
     res.render('home/home');
-  });
+  }, status.statusEmitter);
 
   app.get('/robots.txt', function(req, res)
   {

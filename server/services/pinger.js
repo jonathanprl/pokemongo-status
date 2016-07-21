@@ -30,6 +30,11 @@ function startCron()
     pingGoogleServers();
   });
 
+  // Socket.io emitter
+  schedule.scheduleJob('*/10 * * * * *', () => {
+    status.statusEmitter();
+  });
+
   if (!config.pingAllServers) {
     console.log('Ping all servers is disabled');
     return false;
@@ -56,6 +61,7 @@ function pingGoLoginServer()
       var serverStatus = {
         region: 'global',
         status: res.status == 200,
+        responseCode: res.status,
         time: promise.time,
         friendly: 'Global',
         text: goStatus(promise.time, res.status),
@@ -80,6 +86,7 @@ function pingGoServer(server)
     var serverStatus = {
       region: server,
       status: goStatus(promise.time, res.status) == 'Offline' ? false : true,
+      responseCode: res.status,
       time: promise.time,
       friendly: 'Server ' + server,
       text: goStatus(promise.time, res.status),
@@ -103,6 +110,7 @@ function pingGoogleServers()
       var serverStatus = {
         region: region.id,
         status: region.metadata.status == 'UP' ? true : false,
+        responseCode: 'N/A',
         time: 1,
         friendly: friendlyRegionName(region.name),
         text: region.metadata.status == 'UP' ? 'Online' : 'Offline',

@@ -1,6 +1,8 @@
-var moment = require('moment');
-var db = require('../db');
-var swiftping = require('../helpers/swiftping');
+const moment = require('moment');
+const db = require('../db');
+const swiftping = require('../helpers/swiftping');
+const socket = require('../services/socket');
+const schedule = require('node-schedule');
 
 module.exports = {
   createStatus,
@@ -8,7 +10,8 @@ module.exports = {
   getStatus,
   updateStatus,
   upsertStatus,
-  getLatestStatus
+  getLatestStatus,
+  statusEmitter
 };
 
 /**
@@ -116,7 +119,7 @@ function upsertStatus(status, callback)
   );
 }
 
-function getLatestStatus(req, res, next)
+function _getLatestStatus(callback)
 {
   var types = ['global', 'region', 'server'];
   // TODO: Sanitize
@@ -124,7 +127,7 @@ function getLatestStatus(req, res, next)
   var promises = [];
   types.forEach(type => {
     promises.push(new Promise((resolve, reject) => {
-      db.findWhere('status', { type: type }, {}, null, {region: 1}, (err, docs) => {
+      db.findWhere('status', { type: type }, { _id: 0, type:1, friendly: 1, text: 1, statusCode: 1, region: 1 }, null, { region: 1 }, (err, docs) => {
 
         if (err) {
           console.log(err);
@@ -157,6 +160,13 @@ function getLatestStatus(req, res, next)
       globalStatuses: types.filter((type) => { return type.type == 'global'; })[0].statuses
     };
 
+    callback(null, status);
+  });
+}
+
+function getLatestStatus(req, res, next)
+{
+  _getLatestStatus((err, status) => {
     if (res.locals.api)
     {
       return swiftping.apiResponse('ok', res, status);
@@ -164,5 +174,12 @@ function getLatestStatus(req, res, next)
 
     res.locals.status = status;
     next();
+  })
+}
+
+function statusEmitter()
+{
+  _getLatestStatus((err, status) => {
+    socket.emit('global', 'status', status);
   });
 }

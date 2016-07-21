@@ -12,6 +12,12 @@
   "private": true,
   "dependencies": {
     "jquery": "^2.2.4",
-    "bootstrap": "^3.3.6"
+    "bootstrap": "^3.3.6",
+    "socket.io-client": "^1.4.8"
+  },
+  "overrides": {
+    "socket.io-client": {
+      "main": "socket.io.js"
+    }
   }
 }

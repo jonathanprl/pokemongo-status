@@ -9,7 +9,8 @@ var gulp  = require('gulp'),
   concat = require('gulp-concat'),
   minify = require('gulp-minify'),
   series = require('stream-series'),
-  clean = require('gulp-clean');
+  clean = require('gulp-clean'),
+  livereload = require('gulp-livereload');
 
 gulp.task('inject-production', ['concat-app', 'less'], function() {
   var vendorStream = gulp.src(['./dist/assets/js/vendor-min.js'], {read: false});
@@ -113,6 +114,7 @@ gulp.task('daemon', ['build'], function () {
   })
     .on('restart', function () {
       console.log('Restarted!');
+      livereload.reload();
     });
 });
 

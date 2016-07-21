@@ -1,18 +1,10 @@
-$(document).on('click', '.pattern', selectPattern)
+  var socket = io.connect('http://localhost:8282');
 
-$(".color").spectrum({
-  flat: true,
-  showInput: true,
-  showAlpha: true,
-  showButtons: false,
-  move: function(color) {
-    var rgba = color.toRgb();
-    $('body').css('background-color', 'rgb(' + rgba.r + ', ' + rgba.g + ', '+ rgba.b + ')');
-    $('.preview-area').css('opacity', rgba.a);
-  }
-});
-
-function selectPattern(event) {
-  var url = $(this).data('url');
-  $('.preview-area').css('background-image', 'url(' + url + ')');
-}
+  socket.on('status', function (data) {
+    var statuses = data.globalStatuses.concat(data.regionStatuses);
+    $.each(statuses, function(i,v) {
+      var $value = $('#' + v.region + ' .value');
+      $value.text(v.text);
+      $value.attr('class', v.statusCode + ' pull-right value');
+    });
+  });

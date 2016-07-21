@@ -1,4 +1,4 @@
-  var socket = io.connect('http://localhost:8282');
+  var socket = io.connect($('meta[name="hostname"]').attr('content'));
 
   socket.on('status', function (data) {
     var statuses = data.globalStatuses.concat(data.regionStatuses);

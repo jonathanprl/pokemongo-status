@@ -5,12 +5,14 @@ const gcloud = require('gcloud');
 const fetch = require('node-fetch');
 const time = require('promise-time');
 const schedule = require('node-schedule');
+const moment = require('moment');
 
-const status = require('../controllers/status.js');
-const statusHistorical = require('../controllers/statusHistorical.js');
-const swiftping = require('../helpers/swiftping.js');
+const status = require('../controllers/status');
+const statusHistorical = require('../controllers/statusHistorical');
+const swiftping = require('../helpers/swiftping');
 const db = require('../db');
-const config = require('../../config.js');
+const config = require('../../config');
+const twitter = require('../services/twitter');
 
 var gce = gcloud.compute({
   projectId: 'gamerstats-1349',
@@ -30,9 +32,8 @@ function startCron()
     pingGoogleServers();
   });
 
-  // Socket.io emitter
-  schedule.scheduleJob('*/5 * * * * *', () => {
-    status.statusEmitter();
+  schedule.scheduleJob('* * * * *', () => {
+    tweetServerStatus();
   });
 
   if (!config.pingAllServers) {
@@ -52,6 +53,7 @@ function startCron()
     }(i));
   }
 }
+
 pingGoLoginServer();
 function pingGoLoginServer()
 {
@@ -74,7 +76,52 @@ function pingGoLoginServer()
       status.upsertStatus(serverStatus, (err, doc) => {
         statusHistorical.createStatus(serverStatus, (err, doc) => {});
       });
+
+      twitter.sendTweet('login_' + code);
     });
+  });
+}
+
+function tweetServerStatus()
+{
+  swiftping.logger('info', 'twitter', 'Checking server load statuses...');
+  db.findWhere('statusHistorical', {
+    type: 'server',
+    createdAt: {
+      $gt: moment().subtract(5, 'minutes').toDate()
+    }
+  }, {}, (err, docs) => {
+    var statuses = docs.map(doc => {
+      return doc.statusCode;
+    });
+
+    var abnormalLoad = statuses.filter(status => {
+      return status == 'medium-load' || status == 'high-load' || status == 'max-load';
+    });
+
+    var percentage = 0;
+
+    if (abnormalLoad.length > 0)
+    {
+      percentage = abnormalLoad.length / statuses.length;
+    }
+
+    if (percentage >= 0.1 && percentage < 0.25) {
+      twitter.sendTweet('server_potential-load');
+      swiftping.logger('info', 'twitter', 'Servers may become busy soon. ' + percentage * 100 + '%');
+    } else if (percentage >= 0.25 && percentage < 0.5) {
+      twitter.sendTweet('server_medium-load');
+      swiftping.logger('info', 'twitter', 'Servers are experiencing a medium load. ' + percentage * 100 + '%');
+    } else if (percentage >= 0.5 && percentage < 0.75) {
+      twitter.sendTweet('server_high-load');
+      swiftping.logger('info', 'twitter', 'Servers are experiencing a high load. ' + percentage * 100 + '%');
+    } else if (percentage >= 0.75) {
+      twitter.sendTweet('server_max-load');
+      swiftping.logger('info', 'twitter', 'Servers under extreme load. ' + percentage * 100 + '%');
+    } else {
+      twitter.sendTweet('server_normal-load');
+      swiftping.logger('info', 'twitter', 'Server loads are okay! ' + percentage * 100 + '%');
+    }
   });
 }
 

@@ -21,6 +21,11 @@ function apiResponse(type, res, data, code)
 
 function logger(level, code, message, metadata)
 {
+  if (level != 'debug')
+  {
+    metadata = '';
+  }
+
   console.log(`${level} - [${code.toUpperCase()}] ${message}`, metadata || '');
 }
 

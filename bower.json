@@ -13,7 +13,9 @@
   "dependencies": {
     "jquery": "^2.2.4",
     "bootstrap": "^3.3.6",
-    "socket.io-client": "^1.4.8"
+    "socket.io-client": "^1.4.8",
+    "Chart.js": "npm:chart.js#^2.1.6",
+    "moment": "^2.14.1"
   },
   "overrides": {
     "socket.io-client": {

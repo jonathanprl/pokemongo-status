@@ -11,7 +11,8 @@ module.exports = {
   updateStatus,
   upsertStatus,
   getLatestStatus,
-  statusEmitter
+  statusEmitter,
+  startCron
 };
 
 /**
@@ -146,15 +147,44 @@ function _getLatestStatus(callback)
     var serverStatuses = types.filter((type) => { return type.type == 'server'; })[0].statuses;
     var onlineCount = serverStatuses.filter((status) => { return status.statusCode != 'offline'; }).length;
 
+    var normalLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'normal-load'; }).length;
+    var mediumLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'medium-load'; }).length;
+    var highLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'high-load'; }).length;
+    var maxLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'max-load'; }).length;
+
+    var generalStatus = {
+      code: 'normal-load',
+      text: 'Normal Load'
+    };
+
+    if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.1) {
+      generalStatus = {
+        code: 'medium-load',
+        text: 'Medium Load'
+      };
+    } else if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.5) {
+      generalStatus = {
+        code: 'high-load',
+        text: 'High Load'
+      };
+    } else if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.75) {
+      generalStatus = {
+        code: 'max-load',
+        text: 'Major Issues'
+      };
+    }
+
+
     var status = {
       stats: {
         totalCount: serverStatuses.length,
         onlineCount: onlineCount,
         offlineCount: serverStatuses.length - onlineCount,
-        normalLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'normal-load'; }).length,
-        mediumLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'medium-load'; }).length,
-        highLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'high-load'; }).length,
-        maxLoadCount: serverStatuses.filter((status) => { return status.statusCode == 'max-load'; }).length
+        normalLoadCount: normalLoadCount,
+        mediumLoadCount: mediumLoadCount,
+        highLoadCount: highLoadCount,
+        maxLoadCount: maxLoadCount,
+        generalStatus: generalStatus
       },
       regionStatuses: types.filter((type) => { return type.type == 'region'; })[0].statuses,
       globalStatuses: types.filter((type) => { return type.type == 'global'; })[0].statuses
@@ -174,12 +204,19 @@ function getLatestStatus(req, res, next)
 
     res.locals.status = status;
     next();
-  })
+  });
 }
 
 function statusEmitter()
 {
   _getLatestStatus((err, status) => {
     socket.emit('global', 'status', status);
+  });
+}
+
+function startCron()
+{
+  schedule.scheduleJob('*/5 * * * * *', () => {
+    statusEmitter();
   });
 }

@@ -7,28 +7,28 @@ block content
         .logo
           | PokeGo Status
         h1 Pokemon Go Server Status (Live)
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="5169397643" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});
         h4.live-text.pull-right(title="Updated every 5 seconds.")
           span
           | LIVE
         | <a href="https://twitter.com/PokeGo_Status" class="twitter-follow-button" data-show-count="false">Follow @PokeGo_Status</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
         | <div class="fb-like" style="vertical-align: top;" data-href="https://www.facebook.com/pokegostatus" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>
     .row
-      .col-md-6
-        ul.services.list-group
-            h4.list-group-item Login Servers
-            each status, index in locals.status.globalStatuses
-              li.list-group-item.sub(id=status.region)
-                span.title #{status.friendly}
-                span.value.pull-right(class=status.statusCode)
-                  | #{status.text}
-            h4.list-group-item Game Servers (Regions)
-            each status, index in locals.status.regionStatuses
-              li.list-group-item.sub(id=status.region)
-                span.title #{status.friendly}
-                span.value.pull-right(class=status.statusCode)
-                  | #{status.text}
-      .col-md-6
-        h4.list-group-item Statistics (All)
+      .col-md-5
+        h4.list-group-item Login Servers
+        each status, index in locals.status.globalStatuses
+          li.list-group-item.sub(id=status.region)
+            span.title #{status.friendly}
+            span.value.pull-right(class=status.statusCode)
+              | #{status.text}
+        h4.list-group-item Game Servers
+        li.list-group-item.sub#generalStatus
+          span.title Status
+          span.pull-right
+            span.value(class=locals.status.stats.generalStatus.code) #{locals.status.stats.generalStatus.text}
         li.list-group-item.sub#totalCount
           span.title Total Servers
           span.pull-right
@@ -38,7 +38,7 @@ block content
           span.pull-right
             span.value #{locals.status.stats.onlineCount}
         li.list-group-item.sub#offlineCount
-          span.title Servers Offline
+          span.title Servers Offline (On standby)
           span.pull-right
             span.value #{locals.status.stats.offlineCount}
         li.list-group-item.sub#normalLoadCount
@@ -57,8 +57,17 @@ block content
           span.title.max-load Max Load
           span.pull-right
             span.value #{locals.status.stats.maxLoadCount}
+      .col-md-7
+        h4.list-group-item Login Response Times (Past Week)
+        .list-group-item.login-graph-loader Loading...
+        .historical-chart
+          canvas#login-graph(width="400" height="360")
+        h4.list-group-item Game Server Response Times (Past Week)
+        .list-group-item.server-graph-loader Loading...
+        .historical-chart
+          canvas#server-graph(width="400" height="360")
     div.mm
-      ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="5169397643" data-ad-format="auto")
+      ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9503695649" data-ad-format="auto")
       script.
         (adsbygoogle = window.adsbygoogle || []).push({});
     div.info
@@ -77,6 +86,6 @@ block content
       p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
       p Built and maintained by Gamerstats.net.
       div.mm
-        ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9503695649" data-ad-format="auto")
+        ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="6908326046" data-ad-format="auto")
         script.
           (adsbygoogle = window.adsbygoogle || []).push({});

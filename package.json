@@ -41,13 +41,15 @@
     "moment": "^2.14.1",
     "mongodb": "^2.1.4",
     "mongojs": "^2.2.2",
+    "node-cache": "^3.2.1",
     "node-fetch": "^1.5.3",
     "node-schedule": "^1.1.1",
     "promise-time": "^0.2.0",
     "restler": "^3.4.0",
-    "socket.io": "^1.4.8"
+    "socket.io": "^1.4.8",
+    "twit": "^2.2.4"
   },
-  "engines" : {
-    "node" : "~6.3.0"
+  "engines": {
+    "node": "~6.3.0"
   }
 }

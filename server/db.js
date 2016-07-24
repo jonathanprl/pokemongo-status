@@ -86,10 +86,6 @@ function findWhere(collectionName, query, projection, limit, sort, callback)
  */
 function findOne(collectionName, query, callback)
 {
-  if ('_id' in query)
-  {
-    query._id = mongodb.ObjectId(query._id);
-  }
   mongodb.collection(collectionName).findOne(query, function (err, docs)
   {
     if (err)
@@ -110,10 +106,6 @@ function findOne(collectionName, query, callback)
  */
 function findOneWhere(collectionName, query, projection, callback)
 {
-  // if ('_id' in query)
-  // {
-  //   query._id = mongodb.ObjectId(query._id);
-  // }
   mongodb.collection(collectionName).findOne(query, projection,
     function (err, docs)
     {
@@ -157,10 +149,6 @@ function insert(collectionName, doc, callback)
  */
 function modify(collectionName, query, update, callback)
 {
-  if ('_id' in query)
-  {
-    query._id = mongodb.ObjectId(query._id);
-  }
   mongodb.collection(collectionName).findAndModify({query: query, update: update}, function (err, docs)
   {
     if (err)
@@ -278,13 +266,9 @@ function drop(collectionName, callback)
  * @param {string} collectionName - MongoDB collection name
  * @param {function} callback - Success or error callback function
  */
-function aggregate(collectionName, query, callback)
+function aggregate(collectionName, query, options, callback)
 {
-  if ('_id' in query)
-  {
-    query._id = mongodb.ObjectId(query._id);
-  }
-  mongodb.collection(collectionName).aggregate(query, function (err, docs)
+  mongodb.collection(collectionName).aggregate(query, options, function (err, docs)
   {
     if (err)
     {

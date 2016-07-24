@@ -1,6 +1,10 @@
-var moment = require('moment');
-var db = require('../db');
-var swiftping = require('../helpers/swiftping');
+const moment = require('moment');
+const schedule = require('node-schedule');
+const NodeCache = require('node-cache');
+
+const db = require('../db');
+const swiftping = require('../helpers/swiftping');
+const socket = require('../services/socket');
 
 module.exports = {
   createStatus,
@@ -8,8 +12,65 @@ module.exports = {
   getStatus,
   updateStatus,
   upsertStatus,
-  getLatestStatus
+  getMinutelyStatuses,
+  minutelyEmitter,
+  startCron
 };
+
+const cache = new NodeCache({ stdTTL: 580, checkperiod: 600 });
+
+function getMinutelyStatuses(type, callback)
+{
+  // let cachedDocs = cache.get('minutelyStatuses');
+  // if (cachedDocs) {
+  //   callback(null, cachedDocs);
+  // }
+
+  db.aggregate('statusHistorical', [
+    {
+      $match: {
+        type: type,
+        createdAt: { $gt: moment().subtract(1, 'week').toDate() }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfYear: '$createdAt' },
+          hour: { $hour: '$createdAt' }
+        },
+        avg: { $avg: '$time' },
+        max: { $max: '$time' },
+        min: { $min: '$time' },
+        createdAt: { $first: '$createdAt' }
+      }
+    },
+    {
+      $sort: {
+        createdAt: 1
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        day: '$_id.day',
+        hour: '$_id.hour',
+        avg: '$avg',
+        max: '$max',
+        min: '$min'
+      }
+    }
+  ], {allowDiskUse: true}, (err, docs) => {
+    if (err)
+    {
+      return callback(err);
+    }
+
+    cache.set('minutelyStatuses', docs);
+
+    callback(null, docs);
+  });
+}
 
 /**
  *
@@ -177,5 +238,23 @@ function getLatestStatus(req, res, next)
       res.locals.status = status;
       next();
     });
+  });
+}
+
+function minutelyEmitter()
+{
+  getMinutelyStatuses('server', (err, status) => {
+    socket.emit('global', 'historicalServers', status);
+  });
+
+  getMinutelyStatuses('global', (err, status) => {
+    socket.emit('global', 'historicalLogin', status);
+  });
+}
+
+function startCron()
+{
+  schedule.scheduleJob('0 * * * *', () => {
+    minutelyEmitter();
   });
 }

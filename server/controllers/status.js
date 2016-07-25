@@ -157,17 +157,17 @@ function _getLatestStatus(callback)
       text: 'Normal Load'
     };
 
-    if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.1) {
+    if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.1) {
       generalStatus = {
         code: 'medium-load',
         text: 'Medium Load'
       };
-    } else if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.5) {
+    } else if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.5) {
       generalStatus = {
         code: 'high-load',
         text: 'High Load'
       };
-    } else if ((mediumLoadCount + highLoadCount + maxLoadCount / onlineCount) > 0.75) {
+    } else if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.75) {
       generalStatus = {
         code: 'max-load',
         text: 'Major Issues'

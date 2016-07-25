@@ -29,6 +29,7 @@ function startCron()
 {
   var j = schedule.scheduleJob('* * * * *', () => {
     pingGoLoginServer();
+    pingPTCLoginServer();
     pingGoogleServers();
   });
 
@@ -65,7 +66,7 @@ function pingGoLoginServer()
         status: res.status == 200,
         responseCode: res.status,
         time: promise.time,
-        friendly: 'Global',
+        friendly: 'Google',
         text: goStatus(promise.time, res.status),
         createdAt: new Date(),
         sort: 1,
@@ -78,6 +79,31 @@ function pingGoLoginServer()
       });
 
       twitter.sendTweet('login_' + code);
+    });
+  });
+}
+
+function pingPTCLoginServer()
+{
+  db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
+    const promise = time(fetch)(urls.ptc);
+    promise.then((res) => {
+      var serverStatus = {
+        region: 'ptc',
+        status: res.status == 200,
+        responseCode: res.status,
+        time: promise.time,
+        friendly: 'PTC',
+        text: goStatus(promise.time, res.status),
+        createdAt: new Date(),
+        sort: 1,
+        statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
+        type: 'global'
+      };
+
+      status.upsertStatus(serverStatus, (err, doc) => {
+        statusHistorical.createStatus(serverStatus, (err, doc) => {});
+      });
     });
   });
 }

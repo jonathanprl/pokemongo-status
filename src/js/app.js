@@ -20,11 +20,11 @@ socket.on('status', function (data) {
 });
 
 socket.on('historicalServers', function (data) {
-  generateMinutelyGraph(data, 'server');
+  // generateMinutelyGraph(data, 'server');
 });
 
 socket.on('historicalLogin', function (data) {
-  generateMinutelyGraph(data, 'login');
+  // generateMinutelyGraph(data, 'login');
 });
 
 function generateMinutelyGraph(statuses, type)

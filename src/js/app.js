@@ -19,22 +19,23 @@ socket.on('status', function (data) {
   });
 });
 
-socket.on('historicalServers', function (data) {
-  // generateMinutelyGraph(data, 'server');
+socket.on('historicalLoginGlobal', function (data) {
+  generateMinutelyGraph(data, 'google');
 });
 
-socket.on('historicalLogin', function (data) {
-  // generateMinutelyGraph(data, 'login');
+socket.on('historicalLoginPTC', function (data) {
+  generateMinutelyGraph(data, 'ptc');
 });
 
 function generateMinutelyGraph(statuses, type)
 {
   var labels = statuses.map(function (status) {
-    return moment(status.day + '-' + status.hour + '-' + status.interval, 'DDD-HH-mm').format('DD MMM HH:mm');
+    return moment(status.day + '-' + status.hour + '-' + status.minute, 'DDD-HH-mm').format('DD MMM HH:mm');
   });
 
   var graphData = statuses.map(function (status) {
-    return status.avg;
+    return (Math.ceil(status.avg / 10) / 100).toFixed(2);
+
   });
 
   var data = {
@@ -42,25 +43,14 @@ function generateMinutelyGraph(statuses, type)
     datasets: [
       {
         fill: false,
-        lineTension: 0.1,
         backgroundColor: '#FF9C00',
         borderColor: '#FF9C00',
-        borderCapStyle: 'butt',
-        borderDash: [],
-        borderDashOffset: 0.0,
-        borderJoinStyle: 'miter',
         borderWidth: 2,
         data: graphData,
-        spanGaps: false,
-        pointBorderColor: '#FF9C00',
-        pointBackgroundColor: '#fff',
-        pointBorderWidth: 1,
-        pointHoverRadius: 5,
-        pointHoverBackgroundColor: '#FF9C00',
-        pointHoverBorderColor: 'rgba(220,220,220,1)',
-        pointHoverBorderWidth: 2,
-        pointRadius: 1.7,
-        pointHitRadius: 10,
+        pointColor: '#FF9C00',
+        pointHighlightStroke: '#FF9C00',
+        pointRadius: 1.5,
+        pointHitRadius: 15
       }
     ]
   };
@@ -70,11 +60,20 @@ function generateMinutelyGraph(statuses, type)
       display: false
     },
     tooltips: {
-      bodyFontSize: 0
+      custom: function(tooltip) {
+        // tooltip will be false if tooltip is not visible or should be hidden
+        if (!tooltip) {
+          return;
+        }
+
+        tooltip.text = '123';
+      }
     },
     scales: {
       yAxes: [{
-        display: false
+        gridLines: {
+          display: false
+        }
       }],
       xAxes: [{
         gridLines: {
@@ -85,11 +84,14 @@ function generateMinutelyGraph(statuses, type)
     animation: {
       duration: 0
     },
+    hover: {
+      mode: 'x-axis'
+    },
     maintainAspectRatio: false
   };
 
   $('#' + type + '-graph').parent().html('<canvas id="' + type + '-graph" height="360"></canvas>');
-  var ctx = $('#' + type + '-graph');
+  var ctx = document.getElementById(type + '-graph').getContext("2d");
   var minutelyGraph = new Chart(ctx, {
     type: 'line',
     data: data,
@@ -97,11 +99,4 @@ function generateMinutelyGraph(statuses, type)
   });
 
   $('.' + type + '-graph-loader').hide();
-
-  // var ctxDay = $('#minutely-day-graph');
-  // var minutelyDayGraph = new Chart(ctxDay, {
-  //   type: 'line',
-  //   data: dataDay,
-  //   options: options
-  // });
 }

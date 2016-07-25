@@ -18,7 +18,6 @@ module.exports = function(app)
 
   app.get('/', (req, res) => {
     res.render('home/home');
-    statusHistorical.minutelyEmitter();
   });
 
   app.get('/robots.txt', (req, res) => {

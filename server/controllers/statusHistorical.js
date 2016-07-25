@@ -1,6 +1,5 @@
 const moment = require('moment');
 const schedule = require('node-schedule');
-const NodeCache = require('node-cache');
 
 const db = require('../db');
 const swiftping = require('../helpers/swiftping');
@@ -12,33 +11,62 @@ module.exports = {
   getStatus,
   updateStatus,
   upsertStatus,
-  getMinutelyStatuses,
-  minutelyEmitter,
+  updateLoginHistory,
   startCron
 };
 
-const cache = new NodeCache({ stdTTL: 580, checkperiod: 600 });
-
-function getMinutelyStatuses(type, callback)
+function startCron()
 {
-  return callback(null, []);
+  var fiveMinutely = schedule.scheduleJob('*/5 * * * *', () => {
+    updateLoginHistory('global');
+    updateLoginHistory('ptc');
+  });
+
+  var fiveSecondly = schedule.scheduleJob('*/5 * * * * *', () => {
+    db.findOneWhere('graphs', { code: 'ptcPastDay' }, {}, (err, graph) => {
+      if (err || !graph || !graph.items || graph.items.length == 0)
+      {
+        return socket.emit('global', 'historicalLoginPTC', []);
+      }
+      socket.emit('global', 'historicalLoginPTC', graph.items);
+    });
+    db.findOneWhere('graphs', { code: 'globalPastDay' }, {}, (err, graph) => {
+      if (err || !graph || !graph.items || graph.items.length == 0)
+      {
+        return socket.emit('global', 'historicalLoginGlobal', []);
+      }
+      socket.emit('global', 'historicalLoginGlobal', graph.items);
+    });
+  });
+}
+
+function updateLoginHistory(region)
+{
   // let cachedDocs = cache.get('minutelyStatuses');
   // if (cachedDocs) {
   //   callback(null, cachedDocs);
   // }
 
+  console.log('RUNNING AGGREGATE QUERY: updateLoginHistory');
+
   db.aggregate('statusHistorical', [
     {
       $match: {
-        type: type,
-        createdAt: { $gt: moment().subtract(1, 'week').toDate() }
+        region: region,
+        createdAt: { $gt: moment().subtract(1, 'day').toDate() }
       }
     },
     {
       $group: {
         _id: {
           day: { $dayOfYear: '$createdAt' },
-          hour: { $hour: '$createdAt' }
+          hour: { $hour: '$createdAt' },
+          'minute': {
+            '$subtract': [
+              { '$minute': '$createdAt' },
+              { '$mod': [{ '$minute': '$createdAt' }, 15] }
+            ]
+          }
         },
         avg: { $avg: '$time' },
         max: { $max: '$time' },
@@ -56,6 +84,8 @@ function getMinutelyStatuses(type, callback)
         _id: 0,
         day: '$_id.day',
         hour: '$_id.hour',
+        minute: '$_id.minute',
+        createdAt: '$createdAt',
         avg: '$avg',
         max: '$max',
         min: '$min'
@@ -64,12 +94,12 @@ function getMinutelyStatuses(type, callback)
   ], {allowDiskUse: true}, (err, docs) => {
     if (err)
     {
-      return callback(err);
+      return;
     }
 
-    cache.set('minutelyStatuses', docs);
-
-    callback(null, docs);
+    db.upsert('graphs', { code: region + 'PastDay' }, { code: region + 'PastDay', items: docs, createdAt: new Date() }, (err, docs) => {
+      console.log('FINISHED AGGREGATE QUERY: updateLoginHistory');
+    });
   });
 }
 
@@ -239,23 +269,5 @@ function getLatestStatus(req, res, next)
       res.locals.status = status;
       next();
     });
-  });
-}
-
-function minutelyEmitter()
-{
-  getMinutelyStatuses('server', (err, status) => {
-    socket.emit('global', 'historicalServers', status);
-  });
-
-  getMinutelyStatuses('global', (err, status) => {
-    socket.emit('global', 'historicalLogin', status);
-  });
-}
-
-function startCron()
-{
-  schedule.scheduleJob('0 * * * *', () => {
-    minutelyEmitter();
   });
 }

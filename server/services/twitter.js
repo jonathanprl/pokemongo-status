@@ -11,8 +11,28 @@ module.exports = {
   sendTweet
 };
 
+var track = 'pokemon go servers down, #pokemongo servers down, #pokemongodown, #pokemongoserversdown, #pokemongoservers problems, #pokemongoservers down';
+
+var stream = twit.stream('statuses/filter', { track: track, language: 'en' });
+
+stream.on('tweet', function (tweet) {
+  tweet.track = track;
+  db.insert('twitterStream', tweet,
+    function(err, doc)
+    {
+
+    }
+  );
+});
+
 function sendTweet(code, hashtags)
 {
+  if (config.env == 'dev')
+  {
+    swiftping.logger('debug', 'twitter', 'Tweets are disabled.');
+    return false;
+  }
+
   if (typeof hashtags === 'undefined')
   {
     hashtags = 3;

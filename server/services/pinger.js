@@ -82,12 +82,13 @@ function pingGoLoginServer()
     });
   });
 }
-
+pingPTCLoginServer();
 function pingPTCLoginServer()
 {
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.ptc);
-    promise.then((res) => {
+    promise.then((res, data) => {
+      console.log(data);
       var serverStatus = {
         region: 'ptc',
         status: res.status == 200,

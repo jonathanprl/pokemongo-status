@@ -64,12 +64,14 @@ block content
           span.pull-right
             span.value Loading...
       .col-md-7
-        h4.list-group-item Login Response Times (Past Week)
-        .list-group-item.login-graph-loader Temporarily disabled.
-        //- .historical-chart
-        //-   canvas#login-graph(width="400" height="360")
-        h4.list-group-item Game Server Response Times (Past Week)
-        .list-group-item.server-graph-loader Temporarily disabled.
+        h4.list-group-item PTC Login Response Times (seconds)
+        .list-group-item.login-graph-loader Loading...
+        .historical-chart
+          canvas#ptc-graph(width="400" height="360")
+        h4.list-group-item Google Login Response Times (seconds)
+        .list-group-item.login-graph-loader Loading...
+        .historical-chart
+          canvas#google-graph(width="400" height="360")
         //- .historical-chart
         //-   canvas#server-graph(width="400" height="360")
     div.mm

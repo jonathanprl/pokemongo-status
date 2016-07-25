@@ -16,7 +16,7 @@ module.exports = function(app)
     next();
   });
 
-  app.get('/', status.getLatestStatus, (req, res) => {
+  app.get('/', (req, res) => {
     res.render('home/home');
     statusHistorical.minutelyEmitter();
   });

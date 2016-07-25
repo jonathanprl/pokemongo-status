@@ -104,6 +104,8 @@ function pingPTCLoginServer()
       status.upsertStatus(serverStatus, (err, doc) => {
         statusHistorical.createStatus(serverStatus, (err, doc) => {});
       });
+
+      twitter.sendTweet('ptc_' + code);
     });
   });
 }

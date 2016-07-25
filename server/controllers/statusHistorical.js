@@ -21,6 +21,7 @@ const cache = new NodeCache({ stdTTL: 580, checkperiod: 600 });
 
 function getMinutelyStatuses(type, callback)
 {
+  return callback(null, []);
   // let cachedDocs = cache.get('minutelyStatuses');
   // if (cachedDocs) {
   //   callback(null, cachedDocs);

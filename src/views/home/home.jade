@@ -22,53 +22,56 @@ block content
     .row
       .col-md-5
         h4.list-group-item Login Servers
-        each status, index in locals.status.globalStatuses
-          li.list-group-item.sub(id=status.region)
-            span.title #{status.friendly}
-            span.value.pull-right(class=status.statusCode)
-              | #{status.text}
+        li.list-group-item.sub(id="global")
+          span.title Google
+          span.pull-right
+            span.value
+        li.list-group-item.sub(id="ptc")
+          span.title PTC
+          span.pull-right
+            span.value
         h4.list-group-item Game Servers
         li.list-group-item.sub#generalStatus
           span.title Status
           span.pull-right
-            span.value(class=locals.status.stats.generalStatus.code) #{locals.status.stats.generalStatus.text}
+            span.value
         li.list-group-item.sub#totalCount
           span.title Total Servers
           span.pull-right
-            span.value #{locals.status.stats.totalCount}
+            span.value
         li.list-group-item.sub#onlineCount
           span.title Servers Online
           span.pull-right
-            span.value #{locals.status.stats.onlineCount}
+            span.value
         li.list-group-item.sub#offlineCount
           span.title Servers Offline (On standby)
           span.pull-right
-            span.value #{locals.status.stats.offlineCount}
+            span.value
         li.list-group-item.sub#normalLoadCount
           span.title.normal-load Normal Load
           span.pull-right
-            span.value #{locals.status.stats.normalLoadCount}
+            span.value
         li.list-group-item.sub#mediumLoadCount
           span.title.medium-load Medium Load
           span.pull-right
-            span.value #{locals.status.stats.mediumLoadCount}
+            span.value
         li.list-group-item.sub#highLoadCount
           span.title.high-load High Load
           span.pull-right
-            span.value #{locals.status.stats.highLoadCount}
+            span.value
         li.list-group-item.sub#maxLoadCount
           span.title.max-load Max Load
           span.pull-right
-            span.value #{locals.status.stats.maxLoadCount}
+            span.value
       .col-md-7
         h4.list-group-item Login Response Times (Past Week)
-        .list-group-item.login-graph-loader Loading...
-        .historical-chart
-          canvas#login-graph(width="400" height="360")
+        .list-group-item.login-graph-loader Temporarily disabled.
+        //- .historical-chart
+        //-   canvas#login-graph(width="400" height="360")
         h4.list-group-item Game Server Response Times (Past Week)
-        .list-group-item.server-graph-loader Loading...
-        .historical-chart
-          canvas#server-graph(width="400" height="360")
+        .list-group-item.server-graph-loader Temporarily disabled.
+        //- .historical-chart
+        //-   canvas#server-graph(width="400" height="360")
     div.mm
       ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9503695649" data-ad-format="auto")
       script.

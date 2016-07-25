@@ -9,7 +9,7 @@ socket.on('status', function (data) {
   });
   $.each(data.stats, function (k,v) {
     var text = v;
-    if (typeof v !== 'string')
+    if (v.text)
     {
       text = v.text;
       $('#' + k + ' .value').attr('class', 'value ' + v.code);
@@ -95,7 +95,7 @@ function generateMinutelyGraph(statuses, type)
     data: data,
     options: options
   });
-  
+
   $('.' + type + '-graph-loader').hide();
 
   // var ctxDay = $('#minutely-day-graph');

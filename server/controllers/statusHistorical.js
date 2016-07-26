@@ -11,15 +11,17 @@ module.exports = {
   getStatus,
   updateStatus,
   upsertStatus,
-  updateLoginHistory,
+  runAggregate,
   startCron
 };
 
+runAggregate('server', 'server', null);
 function startCron()
 {
   var fiveMinutely = schedule.scheduleJob('*/5 * * * *', () => {
-    updateLoginHistory('global');
-    updateLoginHistory('ptc');
+    runAggregate('global', 'global', 'global');
+    runAggregate('ptc', 'global', 'ptc');
+    runAggregate('server', 'server', null);
   });
 
   var fiveSecondly = schedule.scheduleJob('*/5 * * * * *', () => {
@@ -37,24 +39,33 @@ function startCron()
       }
       socket.emit('global', 'historicalLoginGlobal', graph.items);
     });
+    db.findOneWhere('graphs', { code: 'serverPastDay' }, {}, (err, graph) => {
+      if (err || !graph || !graph.items || graph.items.length == 0)
+      {
+        return socket.emit('server', 'historicalServer', []);
+      }
+      socket.emit('global', 'historicalServer', graph.items);
+    });
   });
 }
 
-function updateLoginHistory(region)
+function runAggregate(code, type, region)
 {
-  // let cachedDocs = cache.get('minutelyStatuses');
-  // if (cachedDocs) {
-  //   callback(null, cachedDocs);
-  // }
+  console.log('RUNNING AGGREGATE QUERY: runAggregate', code, type, region);
 
-  console.log('RUNNING AGGREGATE QUERY: updateLoginHistory');
+  var match = {
+    type: type,
+    createdAt: { $gt: moment().subtract(2, 'days').toDate() }
+  };
+
+  if (region)
+  {
+    match.region = region;
+  }
 
   db.aggregate('statusHistorical', [
     {
-      $match: {
-        region: region,
-        createdAt: { $gt: moment().subtract(1, 'day').toDate() }
-      }
+      $match: match
     },
     {
       $group: {
@@ -97,8 +108,8 @@ function updateLoginHistory(region)
       return;
     }
 
-    db.upsert('graphs', { code: region + 'PastDay' }, { code: region + 'PastDay', items: docs, createdAt: new Date() }, (err, docs) => {
-      console.log('FINISHED AGGREGATE QUERY: updateLoginHistory');
+    db.upsert('graphs', { code: code + 'PastDay' }, { code: code + 'PastDay', items: docs, createdAt: new Date() }, (err, docs) => {
+      console.log('FINISHED AGGREGATE QUERY: runAggregate', code, type, region);
     });
   });
 }

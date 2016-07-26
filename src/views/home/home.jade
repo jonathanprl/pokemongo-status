@@ -63,21 +63,28 @@ block content
           span.title.max-load Max Load
           span.pull-right
             span.value Loading...
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9503695649" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});
       .col-md-8
         h4.list-group-item PTC Login Response Times (seconds)
+        .list-group-item#ptc-graph-loader Loading...
         .historical-chart
-          .list-group-item.login-graph-loader Loading...
-          canvas#ptc-graph(width="400" height="360")
+          #ptc-graph.plotly-graph(height="165")
         h4.list-group-item Google Login Response Times (seconds)
+        .list-group-item#google-graph-loader Loading...
         .historical-chart
-          .list-group-item.login-graph-loader Loading...
-          canvas#google-graph(width="400" height="360")
-        //- .historical-chart
-        //-   canvas#server-graph(width="400" height="360")
-    div.mm
-      ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9503695649" data-ad-format="auto")
-      script.
-        (adsbygoogle = window.adsbygoogle || []).push({});
+          #google-graph.plotly-graph(height="165")
+        h4.list-group-item Game Server Response Times (seconds)
+        .list-group-item#server-graph-loader Loading...
+        .historical-chart
+          #server-graph.plotly-graph(height="165")
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="6908326046" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});
+    
     div.info
       h3 FAQ
       h5.q Where do you get your data from?
@@ -93,7 +100,3 @@ block content
       p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.
       p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
       p Built and maintained by Gamerstats.net.
-      div.mm
-        ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="6908326046" data-ad-format="auto")
-        script.
-          (adsbygoogle = window.adsbygoogle || []).push({});

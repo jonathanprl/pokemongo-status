@@ -27,7 +27,7 @@ module.exports = {
 
 function startCron()
 {
-  var j = schedule.scheduleJob('* * * * *', () => {
+  var j = schedule.scheduleJob('*/5 * * * * *', () => {
     pingGoLoginServer();
     pingPTCLoginServer();
     pingGoogleServers();
@@ -74,14 +74,16 @@ function pingGoLoginServer()
         type: 'global'
       };
 
-      status.upsertStatus(serverStatus, (err, doc) => {
-        statusHistorical.createStatus(serverStatus, (err, doc) => {});
+      status.upsertStatus({ region: 'global', type: 'global' }, serverStatus, (err, doc) => {
+        if (err) swiftping.logger('error', 'Google Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
       });
+      statusHistorical.createStatus(serverStatus, (err, doc) => {});
 
       twitter.sendTweet('login_' + code);
     });
   });
 }
+
 pingPTCLoginServer();
 function pingPTCLoginServer()
 {
@@ -99,7 +101,6 @@ function pingPTCLoginServer()
           status = false;
         }
 
-
         var serverStatus = {
           region: 'ptc',
           status: res.status == 200,
@@ -113,9 +114,11 @@ function pingPTCLoginServer()
           type: 'global'
         };
 
-        status.upsertStatus(serverStatus, (err, doc) => {
-          statusHistorical.createStatus(serverStatus, (err, doc) => {});
+        db.upsert('status', { region: 'ptc', type: 'global' }, serverStatus, (err, doc) => {
+          if (err) swiftping.logger('error', 'PTC Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
         });
+
+        statusHistorical.createStatus(serverStatus, (err, doc) => {});
 
         twitter.sendTweet('ptc_' + code);
       });
@@ -207,7 +210,7 @@ function pingGoogleServers()
         statusCode: region.metadata.status == 'UP' ? 'online' : 'offline',
         type: 'region'
       };
-      status.upsertStatus(serverStatus, function(err, doc) {
+      status.upsertStatus({ region: region.id, type: 'region' }, serverStatus, function(err, doc) {
         statusHistorical.createStatus(serverStatus, function(err, doc) {
         });
       });

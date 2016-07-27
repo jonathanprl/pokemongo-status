@@ -106,9 +106,9 @@ function updateStatus(req, res)
  * @param {object} req - Express request
  * @param {object} res - Express response
  */
-function upsertStatus(status, callback)
+function upsertStatus(query, status, callback)
 {
-  db.upsert('status', { region: status.region }, status,
+  db.upsert('status', query, status,
     function(err, doc)
     {
       if (err)

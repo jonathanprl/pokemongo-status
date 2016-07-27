@@ -88,25 +88,37 @@ function pingPTCLoginServer()
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.ptc);
     promise.then((res, data) => {
-      console.log(data);
-      var serverStatus = {
-        region: 'ptc',
-        status: res.status == 200,
-        responseCode: res.status,
-        time: promise.time,
-        friendly: 'PTC',
-        text: goStatus(promise.time, res.status),
-        createdAt: new Date(),
-        sort: 1,
-        statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
-        type: 'global'
-      };
+      res.text().then(function(body) {
+        let status = res.status == 200;
+        let time = promise.time;
 
-      status.upsertStatus(serverStatus, (err, doc) => {
-        statusHistorical.createStatus(serverStatus, (err, doc) => {});
+        let $ = cheerio.load(body);
+        if ($('#maintenance').length > 0)
+        {
+          time = 20000;
+          status = false;
+        }
+
+
+        var serverStatus = {
+          region: 'ptc',
+          status: res.status == 200,
+          responseCode: res.status,
+          time: time,
+          friendly: 'PTC',
+          text: goStatus(time, res.status),
+          createdAt: new Date(),
+          sort: 1,
+          statusCode: goStatus(time, res.status).toLowerCase().split(' ').join('-'),
+          type: 'global'
+        };
+
+        status.upsertStatus(serverStatus, (err, doc) => {
+          statusHistorical.createStatus(serverStatus, (err, doc) => {});
+        });
+
+        twitter.sendTweet('ptc_' + code);
       });
-
-      twitter.sendTweet('ptc_' + code);
     });
   });
 }

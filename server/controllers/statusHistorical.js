@@ -15,7 +15,6 @@ module.exports = {
   startCron
 };
 
-runAggregate('server', 'server', null);
 function startCron()
 {
   var fiveMinutely = schedule.scheduleJob('*/5 * * * *', () => {

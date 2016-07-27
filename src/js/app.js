@@ -5,7 +5,15 @@ socket.on('status', function (data) {
   $.each(statuses, function(i,v) {
     var $value = $('#' + v.region + ' .value');
     $value.text(v.text);
-    $value.attr('class', v.statusCode + ' pull-right value');
+    $value.attr('class', v.statusCode + ' value');
+    if (v.type == 'global')
+    {
+      if ($value.prev('.time').length == 0)
+      {
+        $value.before('<span class="time"></span>');
+      }
+      $value.prev('.time').attr('class', 'time ' + v.statusCode).text((Math.ceil(v.time / 10) / 100).toFixed(2) + 's');
+    }
   });
   $.each(data.stats, function (k,v) {
     var text = v;

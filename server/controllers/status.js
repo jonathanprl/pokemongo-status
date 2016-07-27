@@ -128,7 +128,7 @@ function _getLatestStatus(callback)
   var promises = [];
   types.forEach(type => {
     promises.push(new Promise((resolve, reject) => {
-      db.findWhere('status', { type: type }, { _id: 0, type:1, friendly: 1, text: 1, statusCode: 1, region: 1 }, null, { region: 1 }, (err, docs) => {
+      db.findWhere('status', { type: type }, { _id: 0, type:1, friendly: 1, text: 1, statusCode: 1, region: 1, time: 1 }, null, { region: 1 }, (err, docs) => {
 
         if (err) {
           console.log(err);

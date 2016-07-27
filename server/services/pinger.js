@@ -95,7 +95,7 @@ function pingPTCLoginServer()
         let $ = cheerio.load(body);
         if ($('#maintenance').length > 0)
         {
-          time = 20000;
+          time = Math.ceil(Math.random() * 10000) + 18000;
           status = false;
         }
 

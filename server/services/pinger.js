@@ -27,7 +27,7 @@ module.exports = {
 
 function startCron()
 {
-  var j = schedule.scheduleJob('*/5 * * * * *', () => {
+  var j = schedule.scheduleJob('* * * * *', () => {
     pingGoLoginServer();
     pingPTCLoginServer();
     pingGoogleServers();

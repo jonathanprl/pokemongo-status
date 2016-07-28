@@ -186,11 +186,12 @@ function pingGoServer(server)
       statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
       type: 'server'
     };
-    status.upsertStatus(serverStatus, (err, doc) => {
-      statusHistorical.createStatus(serverStatus, (err, doc) => {
 
-      });
+    db.upsert('status', { region: serverStatus.region, type: serverStatus.type }, serverStatus, (err, doc) => {
+      if (err) swiftping.logger('error', 'PTC Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
     });
+
+    statusHistorical.createStatus(serverStatus, (err, doc) => {});
   });
 }
 

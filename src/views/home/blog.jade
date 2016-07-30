@@ -8,7 +8,8 @@ block content
           each article in locals.blogs
             article(itemscope="itemscope" itemtype="http://schema.org/NewsArticle")
               header
-                h1(itemprop="name")=article.title         
+                h1(itemprop="name")
+                  a(href="http://pokegostat.us/blog/#{article.seo_url}" title="Go to " + article.title)=article.title         
                 | <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=#{article.title}" data-url="http://pokegostat.us/blog/#{article.seo_url}" data-via="pokego_status" data-hashtags="pokemongo">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
                 | <div class="fb-like" style="vertical-align: top;" data-href="http://pokegostat.us/blog/#{article.seo_url}" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>  
                 p

@@ -1,16 +1,10 @@
-extends ./index.jade
-
-block header
-  nav.navbar.navbar-default
-    .container
-      .navbar-header
-        button.navbar-toggle.collapsed(type="button", data-toggle="collapse", data-target="#bs-example-navbar-collapse-1", aria-expanded="false")
-          span.sr-only Toggle navigation
-          span.icon-bar
-          span.icon-bar
-          span.icon-bar
-        a.navbar-brand.logo(href="/") Sandbox
-      .collapse.navbar-collapse(id="bs-example-navbar-collapse-1")
-        ul.nav.navbar-nav.navbar-right
-          li
-            a(href="#") LOGOUT
+a(href="/" title="Pokemon Go Server Status")
+  .logo
+    | PokeGo Status
+h1 Pokemon Go Server Status (Live)
+nav.main-nav
+  ul
+    li
+      a(href="/") Home
+    li
+      a(href="/blog") Blog

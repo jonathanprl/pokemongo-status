@@ -30,6 +30,10 @@ footer {
   font-size: 12px;
 }
 
+section.home {
+  margin: 30px 0;
+}
+
 .mm {
   margin: 3rem 0;
 }
@@ -132,6 +136,25 @@ footer {
   border: 0;
 }
 
+.main-nav {
+  text-align: center;
+  ul {
+    list-style: none;
+    display: inline;
+    margin: 15px 0;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin-right: 25px;
+    text-transform: uppercase;
+  }
+  a {
+    color: #adadad;
+    font-weight: 600;
+  }
+}
+
 .explanation {
   display: block;
   font-size: 12px;
@@ -172,12 +195,36 @@ footer {
   }
 }
 
-.info p {
-  font-size: 13px;
+.info {
+  background-color: #2E2E2E;
+  padding: 15px;
+  p {
+    font-size: 14px;
+    margin: 5px 0 15px 0;
+  }
 }
 
 @-webkit-keyframes pulsate {
   0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
   50% {opacity: 1.0;}
   100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+}
+
+.news {
+  background-color: #2e2e2e;
+  padding: 30px;
+  margin: 15px 0;
+  h1 {
+    margin: 5px 0;
+    font-weight: bold;
+    font-size: 40px;
+    text-align: left;
+  }
+  h2 {
+    font-weight: bold;
+    font-size: 28px;
+  }
+  p {
+    font-size: 15px;
+  }
 }

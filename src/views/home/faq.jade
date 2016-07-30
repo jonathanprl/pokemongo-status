@@ -1,0 +1,36 @@
+extends ../index/index.jade
+
+block content
+  .container
+    div.mm
+      ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="5976002844" data-ad-format="auto")
+      script.
+        (adsbygoogle = window.adsbygoogle || []).push({});
+        
+    section.home
+      .row
+        .col-md-8
+          h2 Pokemon Go Help and FAQ
+          .info
+            each faq in locals.faqs
+              div
+                strong=faq.question
+                p=faq.answer
+        .col-md-4
+          div.mm
+            ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="7452736049" data-ad-format="auto")
+            script.
+              (adsbygoogle = window.adsbygoogle || []).push({});
+                      
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="8929469240" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});
+    footer
+      p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.
+      p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
+      p Built and maintained by Gamerstats.net.
+      p Play Rocket League? Check out and compare your ranks and stats at <a href="https://rocketleaguerank.com" title="Rocket League Rank">Rocket League Rank</a>.
+
+block scripts
+  script(type="text/javascript" src="/js/status.js")

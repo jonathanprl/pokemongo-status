@@ -1,0 +1,39 @@
+extends ../index/index.jade
+
+block content
+  .container
+    .row
+      .col-md-10
+        .news
+          each article in locals.blogs
+            article(itemscope="itemscope" itemtype="http://schema.org/NewsArticle")
+              header
+                h1(itemprop="name")=article.title         
+                | <a class="twitter-share-button" href="https://twitter.com/intent/tweet?text=#{article.title}" data-via="pokego_status" data-hashtags="pokemongo">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                | <div class="fb-like" style="vertical-align: top;" data-href="http://pokegostat.us/blog/#{article.seo_url}" data-layout="button" data-action="like" data-size="small" data-show-faces="false" data-share="true"></div>  
+                p
+                  span(itemprop="by-author")
+                    | By #{article.author}&nbsp;/&nbsp;
+                  time(itemprop="datePublished" datetime=article.published_at)
+                h2(itemprop="headline")=article.sub_title
+                div.mm
+                  ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="5373900441" data-ad-format="auto")
+                  script.
+                    (adsbygoogle = window.adsbygoogle || []).push({}); 
+              section
+                div.markdown(itemprop="articleBody")=article.content
+              
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="9943700841" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});                
+      .col-md-2
+        div.mm
+          ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="5373900441" data-ad-format="auto")
+          script.
+            (adsbygoogle = window.adsbygoogle || []).push({});
+    footer
+      p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.
+      p This website is not affiliated in any way with Niantic, The Pokemon Company or Nintendo.
+      p Built and maintained by Gamerstats.net.
+      p Play Rocket League? Check out and compare your ranks and stats at <a href="https://rocketleaguerank.com" title="Rocket League Rank">Rocket League Rank</a>.

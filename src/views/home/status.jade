@@ -86,27 +86,10 @@ block content
         .historical-chart
           #server-graph.plotly-graph(height="165")
     
-    section.home
-      h2 Pokémon Go Server Blog
-      .row
-        .col-md-8
-          .news
-            article
-              header
-                h1=locals.latestBlog.title
-                p
-                  span
-                    | By #{locals.latestBlog.author}&nbsp;/&nbsp;
-                  time(datetime=locals.latestBlog.published_at) 18 days ago
-                h2=locals.latestBlog.sub_title
-              div
-                div.markdown=locals.latestBlog.short_content
-                a.btn.btn-primary.btn-block(href="/blog/" + locals.latestBlog.seo_url title="Read more about " + locals.latestBlog.title) Read More
-        .col-md-4
-          div.mm
-            ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="6908326046" data-ad-format="auto")
-            script.
-              (adsbygoogle = window.adsbygoogle || []).push({});
+    div.mm
+      ins.adsbygoogle(style="display:block" data-ad-client="ca-pub-6993069428952088" data-ad-slot="6908326046" data-ad-format="auto")
+      script.
+        (adsbygoogle = window.adsbygoogle || []).push({});
           
     footer
       p For further info and business enquiries: <a href="mailto:contact@pokegostat.us">contact@pokegostat.us</a>.

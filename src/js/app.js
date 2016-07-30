@@ -12,7 +12,6 @@ socket.on('globalStatus', function (data) {
 socket.on('status', function (data) {
   var statuses = data.globalStatuses;
   $.each(statuses, function(i,v) {
-    console.log(v);
     var $region = $('#' + v.region);
     $region.find('.value').attr('class', 'value ' + v.code).text(v.text);
     $region.find('.time').attr('class', 'time ' + v.code).text((Math.ceil(v.time / 10) / 100).toFixed(2) + 's');

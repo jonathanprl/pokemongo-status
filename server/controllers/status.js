@@ -15,6 +15,11 @@ module.exports = {
   startCron
 };
 
+var statusTypes = [];
+db.findWhere('statusTypes', {}, { _id: 0 }, (err, docs) => {
+  statusTypes = docs;
+});
+
 /**
  *
  // * @param {object} req - Express request
@@ -152,28 +157,11 @@ function _getLatestStatus(callback)
     var highLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'high-load'; }).length;
     var maxLoadCount = serverStatuses.filter((status) => { return status.statusCode == 'max-load'; }).length;
 
-    var generalStatus = {
-      code: 'normal-load',
-      text: 'Normal Load'
-    };
+    var percentage = ((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) * 100;
 
-    if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.1) {
-      generalStatus = {
-        code: 'medium-load',
-        text: 'Medium Load'
-      };
-    } else if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.5) {
-      generalStatus = {
-        code: 'high-load',
-        text: 'High Load'
-      };
-    } else if (((mediumLoadCount + highLoadCount + maxLoadCount) / onlineCount) > 0.75) {
-      generalStatus = {
-        code: 'max-load',
-        text: 'Major Issues'
-      };
-    }
-
+    var generalStatus = statusTypes.filter(statusType => {
+      return statusType.type == 'percentage' && percentage >= statusType.gt && percentage < statusType.lt;
+    })[0];
 
     var status = {
       stats: {
@@ -186,8 +174,21 @@ function _getLatestStatus(callback)
         maxLoadCount: maxLoadCount,
         generalStatus: generalStatus
       },
-      regionStatuses: types.filter((type) => { return type.type == 'region'; })[0].statuses,
-      globalStatuses: types.filter((type) => { return type.type == 'global'; })[0].statuses
+      globalStatuses: types.filter(type => {
+        return type.type == 'global';
+      })[0].statuses.map(status => {
+        var statusType = statusTypes.filter(statusType => {
+          return status.statusCode == statusType.code && statusType.type == 'time';
+        })[0];
+
+        return {
+          time: status.time,
+          region: status.region,
+          code: statusType.code,
+          text: statusType.friendly,
+          explanation: statusType.explanation && statusType.explanation[status.region] ? statusType.explanation[status.region] : null
+        };
+      })
     };
 
     callback(null, status);
@@ -211,6 +212,9 @@ function statusEmitter()
 {
   _getLatestStatus((err, status) => {
     socket.emit('global', 'status', status);
+    db.findWhere('statusTypes', {type: 'global'}, { _id: 0 }, (err, docs) => {
+      socket.emit('global', 'globalStatus', docs);
+    });
   });
 }
 

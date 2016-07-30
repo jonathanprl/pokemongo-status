@@ -1,29 +1,35 @@
 var socket = io.connect($('meta[name="hostname"]').attr('content'));
 
+socket.on('globalStatus', function (data) {
+  $('#global-status').html('');
+  $.each(data, function(i,v) {
+    var $statusBox = $('<div>').attr('class', 'status').html('&nbsp;' + v.friendly);
+    $statusBox.prepend($('<span>').attr('class', 'label label-' + v.class).text(v.code));
+    $('#global-status').append($statusBox);
+  });
+});
+
 socket.on('status', function (data) {
-  var statuses = data.globalStatuses.concat(data.regionStatuses);
+  var statuses = data.globalStatuses;
   $.each(statuses, function(i,v) {
-    var $value = $('#' + v.region + ' .value');
-    $value.text(v.text);
-    $value.attr('class', v.statusCode + ' value');
-    if (v.type == 'global')
-    {
-      if ($value.prev('.time').length == 0)
-      {
-        $value.before('<span class="time"></span>');
-      }
-      $value.prev('.time').attr('class', 'time ' + v.statusCode).text((Math.ceil(v.time / 10) / 100).toFixed(2) + 's');
-    }
+    console.log(v);
+    var $region = $('#' + v.region);
+    $region.find('.value').attr('class', 'value ' + v.code).text(v.text);
+    $region.find('.time').attr('class', 'time ' + v.code).text((Math.ceil(v.time / 10) / 100).toFixed(2) + 's');
+    $region.find('.explanation').toggle(!!v.explanation).text(v.explanation);
   });
   $.each(data.stats, function (k,v) {
+    var $general = $('#' + k);
     var text = v;
-    if (v.text)
+    if (v.code)
     {
-      text = v.text;
-      $('#' + k + ' .value').attr('class', 'value ' + v.code);
+      var $general = $('#' + k);
+      text = v.friendly;
+      $general.find('.value').attr('class', 'value ' + v.code);
+      $general.find('.explanation').toggle(!!v.explanation).text(v.explanation);
     }
 
-    $('#' + k + ' .value').text(text);
+    $general.find('.value').text(text);
   });
 });
 

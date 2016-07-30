@@ -25,6 +25,11 @@ module.exports = {
   startCron
 };
 
+var statusTypes = [];
+db.find('statusTypes', (err, docs) => {
+  statusTypes = docs;
+});
+
 function startCron()
 {
   var j = schedule.scheduleJob('* * * * *', () => {
@@ -33,7 +38,7 @@ function startCron()
     pingGoogleServers();
   });
 
-  schedule.scheduleJob('* * * * *', () => {
+  schedule.scheduleJob('*/15 * * * *', () => {
     tweetServerStatus();
   });
 
@@ -61,16 +66,29 @@ function pingGoLoginServer()
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.global);
     promise.then((res) => {
+      var statusText = 'Offline';
+      var statusCode = 'offline';
+
+      var statusType = statusTypes.filter(statusType => {
+        return statusType.type == 'time' && promise.time >= statusType.gt && promise.time < statusType.lt;
+      })[0];
+
+      if (statusType)
+      {
+        statusCode = statusType.code;
+        statusText = statusType.friendly;
+      }
+
       var serverStatus = {
         region: 'global',
         status: res.status == 200,
         responseCode: res.status,
         time: promise.time,
         friendly: 'Google',
-        text: goStatus(promise.time, res.status),
+        text: statusText,
         createdAt: new Date(),
         sort: 1,
-        statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
+        statusCode: statusCode,
         type: 'global'
       };
 
@@ -101,16 +119,29 @@ function pingPTCLoginServer()
           status = false;
         }
 
+        var statusText = 'Offline';
+        var statusCode = 'offline';
+
+        var statusType = statusTypes.filter(statusType => {
+          return statusType.type == 'time' && promise.time >= statusType.gt && promise.time < statusType.lt;
+        })[0];
+
+        if (statusType)
+        {
+          statusCode = statusType.code;
+          statusText = statusType.friendly;
+        }
+
         var serverStatus = {
           region: 'ptc',
           status: res.status == 200,
           responseCode: res.status,
           time: time,
           friendly: 'PTC',
-          text: goStatus(time, res.status),
+          text: statusText,
           createdAt: new Date(),
           sort: 1,
-          statusCode: goStatus(time, res.status).toLowerCase().split(' ').join('-'),
+          statusCode: statusCode,
           type: 'global'
         };
 
@@ -150,22 +181,14 @@ function tweetServerStatus()
       percentage = abnormalLoad.length / statuses.length;
     }
 
-    if (percentage >= 0.1 && percentage < 0.25) {
-      twitter.sendTweet('server_potential-load');
-      swiftping.logger('info', 'twitter', 'Servers may become busy soon. ' + percentage * 100 + '%');
-    } else if (percentage >= 0.25 && percentage < 0.5) {
-      twitter.sendTweet('server_medium-load');
-      swiftping.logger('info', 'twitter', 'Servers are experiencing a medium load. ' + percentage * 100 + '%');
-    } else if (percentage >= 0.5 && percentage < 0.75) {
-      twitter.sendTweet('server_high-load');
-      swiftping.logger('info', 'twitter', 'Servers are experiencing a high load. ' + percentage * 100 + '%');
-    } else if (percentage >= 0.75) {
-      twitter.sendTweet('server_max-load');
-      swiftping.logger('info', 'twitter', 'Servers under extreme load. ' + percentage * 100 + '%');
-    } else {
-      twitter.sendTweet('server_normal-load');
-      swiftping.logger('info', 'twitter', 'Server loads are okay! ' + percentage * 100 + '%');
-    }
+    percentage *= 100;
+
+    var statusType = statusTypes.filter(statusType => {
+      return statusType.type == 'percentage' && percentage >= statusType.gt && percentage < statusType.lt;
+    })[0];
+
+    twitter.sendTweet('server_' + statusType.code);
+    swiftping.logger('info', 'twitter', statusType.friendly + ' ' + percentage + '%');
   });
 }
 
@@ -174,16 +197,29 @@ function pingGoServer(server)
   const promise = time(fetch)(`https://pgorelease.nianticlabs.com/plfe/${server}/rpc`, { method: 'POST' });
 
   promise.then((res) => {
+    var statusText = 'Offline';
+    var statusCode = 'offline';
+
+    var statusType = statusTypes.filter(statusType => {
+      return statusType.type == 'time' && promise.time >= statusType.gt && promise.time < statusType.lt;
+    })[0];
+
+    if (statusType)
+    {
+      statusCode = statusType.code;
+      statusText = statusType.friendly;
+    }
+
     var serverStatus = {
       region: server,
-      status: goStatus(promise.time, res.status) == 'Offline' ? false : true,
+      status: statusCode == 'offline' ? false : true,
       responseCode: res.status,
       time: promise.time,
       friendly: 'Server ' + server,
-      text: goStatus(promise.time, res.status),
+      text: statusText,
       createdAt: new Date(),
       sort: 1,
-      statusCode: goStatus(promise.time, res.status).toLowerCase().split(' ').join('-'),
+      statusCode: statusCode,
       type: 'server'
     };
 
@@ -217,20 +253,6 @@ function pingGoogleServers()
       });
     });
   });
-}
-
-function goStatus(time, status)
-{
-  if (status == 404)
-  {
-    return 'Offline';
-  }
-
-  if (time === -1) return 'Offline';
-  if (time < 500) return 'Normal Load';
-  if (time >= 500 && time < 3000) return 'Medium Load';
-  if (time >= 3000 && time < 10000) return 'High Load';
-  if (time >= 10000) return 'Max Load';
 }
 
 function friendlyRegionName(name)

@@ -28,7 +28,7 @@ function getBlogs(req, res, next)
   }
 
   // TODO: Sanitize
-  db.findWhere('blog', {}, { _id: 0 }, 1, { published_at: -1 }, (err, docs) => {
+  db.findWhere('blog', { publish: true }, { _id: 0 }, 1, { published_at: -1 }, (err, docs) => {
     if (err)
     {
       docs = [];
@@ -102,7 +102,7 @@ function getLatestBlog(req, res, next)
   }
 
   // TODO: Sanitize
-  db.findWhere('blog', {}, {_id: 0}, 1, {published_at: -1}, (err, docs) => {
+  db.findWhere('blog', { publish: true }, { _id: 0 }, 1, {published_at: -1}, (err, docs) => {
     if (err)
     {
       docs = [];

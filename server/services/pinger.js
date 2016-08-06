@@ -30,6 +30,8 @@ db.find('statusTypes', (err, docs) => {
   statusTypes = docs;
 });
 
+let serverCounter = {};
+
 function startCron()
 {
   var j = schedule.scheduleJob('* * * * *', () => {
@@ -52,6 +54,7 @@ function startCron()
   for (var i=1;i<=servers;i++)
   {
     var second = i % 60;
+    serverCounter[i] = 10;
     (function(server) {
       schedule.scheduleJob(`${second} * * * * *`, () => {
         pingGoServer(server);
@@ -60,9 +63,11 @@ function startCron()
   }
 }
 
+serverCounter['google'] = 10;
 pingGoLoginServer();
 function pingGoLoginServer()
 {
+  serverCounter['google']++;
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.global);
     promise.then((res) => {
@@ -95,16 +100,23 @@ function pingGoLoginServer()
       status.upsertStatus({ region: 'global', type: 'global' }, serverStatus, (err, doc) => {
         if (err) swiftping.logger('error', 'Google Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
       });
-      statusHistorical.createStatus(serverStatus, (err, doc) => {});
+
+      if (serverCounter['google'] >= 10)
+      {
+        statusHistorical.createStatus(serverStatus, (err, doc) => {});
+        serverCounter['google'] = 0;
+      }
 
       twitter.sendTweet('login_' + code);
     });
   });
 }
 
+serverCounter['ptc'] = 10;
 pingPTCLoginServer();
 function pingPTCLoginServer()
 {
+  serverCounter['ptc']++;
   db.findOneWhere('settings', { _id: 'urls' }, (err, urls) => {
     const promise = time(fetch)(urls.ptc);
     promise.then((res, data) => {
@@ -149,7 +161,11 @@ function pingPTCLoginServer()
           if (err) swiftping.logger('error', 'PTC Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
         });
 
-        statusHistorical.createStatus(serverStatus, (err, doc) => {});
+        if (serverCounter['ptc'] >= 10)
+        {
+          statusHistorical.createStatus(serverStatus, (err, doc) => {});
+          serverCounter['ptc'] = 0;
+        }
 
         twitter.sendTweet('ptc_' + code);
       });
@@ -194,6 +210,7 @@ function tweetServerStatus()
 
 function pingGoServer(server)
 {
+  serverCounter[server]++;
   const promise = time(fetch)(`https://pgorelease.nianticlabs.com/plfe/${server}/rpc`, { method: 'POST' });
 
   promise.then((res) => {
@@ -227,7 +244,14 @@ function pingGoServer(server)
       if (err) swiftping.logger('error', 'PTC Upsert', {code: 'server_error', message: 'Could not upsert status.', error: err});
     });
 
-    statusHistorical.createStatus(serverStatus, (err, doc) => {});
+    if (serverCounter[server] >= 10)
+    {
+      console.log(serverCounter);
+      console.log('google', serverCounter['google']);
+      console.log('ptc', serverCounter['ptc']);
+      statusHistorical.createStatus(serverStatus, (err, doc) => {});
+      serverCounter[server] = 0;
+    }
   });
 }
 

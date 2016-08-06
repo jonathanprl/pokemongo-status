@@ -2,6 +2,7 @@ const status = require('./controllers/status');
 const statusHistorical = require('./controllers/statusHistorical');
 const blog = require('./controllers/blog');
 const faq = require('./controllers/faq');
+const db = require('./db');
 const swiftping = require('./helpers/swiftping');
 const sitemap = require('./helpers/sitemap');
 const pinger = require('./services/pinger');
@@ -19,7 +20,16 @@ module.exports = function(app)
     res.locals.pageTitle = 'Pokemon Go Server Status';
     res.locals.pageDescription = 'Check the status of the official Pokemon Go servers. Know if the servers are down just for you, or for everyone.';
     res.locals.pageKeywords = 'pokemon go server status, pokemongo server status, pokemon go servers, pokemongo down, ninantic, pokemongo, server status, ptc login server';
-    next();
+    res.locals.maintenance = false;
+
+    db.findOneWhere('settings', { _id: 'maintenance' }, (err, maintenance) => {
+      if (maintenance.enabled) {
+        res.locals.maintenance = true;
+        res.render('home/maintenance');
+      } else {
+        next();
+      }
+    });
   });
 
   app.get('/', blog.getLatestBlog, (req, res) => {

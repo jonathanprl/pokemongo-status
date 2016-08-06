@@ -72,17 +72,20 @@ html
           a(href="/" title="Pokemon Go Server Status")
             .logo
               | PokeGo Status
-          h1 Pokemon Go Server Status (Live)
-          nav.main-nav
-            ul
-              li
-                a(href="/") Home
-              li
-                a(href="/status" title="Pokemon Go Server Status") Server Status
-              li
-                a(href="/blog") Blog
-              li
-                a(href="/faq" title="Pokemon Go Help") FAQ
+          if locals.maintenance
+            h1 Down for maintenance. Back up shortly! :)
+          else  
+            h1 Pokemon Go Server Status (Live)
+            nav.main-nav
+              ul
+                li
+                  a(href="/") Home
+                li
+                  a(href="/status" title="Pokemon Go Server Status") Server Status
+                li
+                  a(href="/blog") Blog
+                li
+                  a(href="/faq" title="Pokemon Go Help") FAQ
       block content
     footer
       block footer

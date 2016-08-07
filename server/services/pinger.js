@@ -246,9 +246,6 @@ function pingGoServer(server)
 
     if (serverCounter[server] >= 10)
     {
-      console.log(serverCounter);
-      console.log('google', serverCounter['google']);
-      console.log('ptc', serverCounter['ptc']);
       statusHistorical.createStatus(serverStatus, (err, doc) => {});
       serverCounter[server] = 0;
     }

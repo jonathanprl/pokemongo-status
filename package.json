@@ -39,7 +39,7 @@
     "joi": "^8.0.5",
     "lodash": "^4.0.0",
     "moment": "^2.14.1",
-    "mongodb": "^2.1.4",
+    "mongodb": "^3.6.1",
     "mongojs": "^2.2.2",
     "node-cache": "^3.2.1",
     "node-fetch": "^1.5.3",
